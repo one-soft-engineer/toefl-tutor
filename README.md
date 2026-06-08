@@ -27,7 +27,7 @@ Claude Code → questions/*.json → local practice (next dev) → grade locally
    `questions/2026-06-08-example.json` for the format: a ~70-word passage with
    blanks, each blank giving the leading letters (`shown`) and the full
    American-spelling `answer`.
-3. `LOCAL_MODE=1 npm run dev` and open http://localhost:3000.
+3. `LOCAL_MODE=1 pnpm dev` and open http://localhost:3000.
 4. Pick a question, fill in the missing letters, and submit. You are graded
    locally and the result is auto-synced to the cloud.
 
@@ -37,7 +37,7 @@ cloud database after syncing.
 ## Cloud deploy (Vercel)
 
 1. Create a Neon Postgres database; set `DATABASE_URL`.
-2. `npm run db:push` to create the tables.
+2. `pnpm db:push` to create the tables.
 3. Create a GitHub OAuth app; set `GITHUB_ID`, `GITHUB_SECRET`, and callback
    URL `https://<app>/api/auth/callback/github`.
 4. Set `ALLOWED_GITHUB_LOGIN` (your GitHub username), `AUTH_SECRET`,
@@ -62,8 +62,13 @@ cloud database after syncing.
 
 ## Tests
 
+This project uses [pnpm](https://pnpm.io). CI (`.github/workflows/ci.yml`) runs
+typecheck, lint, test, and build on every push and pull request.
+
 ```bash
-npm test          # unit tests (grading, schema, loader, ingestion)
-npm run lint
-npm run build
+pnpm install
+pnpm test          # unit tests (grading, schema, loader, ingestion)
+pnpm typecheck
+pnpm lint
+pnpm build
 ```
