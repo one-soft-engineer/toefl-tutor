@@ -1,0 +1,9 @@
+{
+  "topic": "Marine Biology",
+  "source": "fixture",
+  "passage": "Coral reefs are di_____ and prov___ shelter.",
+  "blanks": [
+    { "index": 0, "shown": "di", "answer": "diverse", "hint": "varied" },
+    { "index": 1, "shown": "prov", "answer": "provide" }
+  ]
+}
