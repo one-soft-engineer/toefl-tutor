@@ -1,0 +1,11 @@
+{
+  "topic": "Marine Biology",
+  "source": "2026-06-08-example",
+  "passage": "Coral reefs are among the most di_____ ecosystems on Earth. They prov___ shelter for thousands of spec___ and support coastal commun_____ that depend on fishing and tourism.",
+  "blanks": [
+    { "index": 0, "shown": "di", "answer": "diverse", "hint": "varied" },
+    { "index": 1, "shown": "prov", "answer": "provide" },
+    { "index": 2, "shown": "spec", "answer": "species" },
+    { "index": 3, "shown": "commun", "answer": "communities" }
+  ]
+}

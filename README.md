@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TOEFL Complete-the-Words Tutor
 
-## Getting Started
+Single-user tool for practising the TOEFL iBT 2026 Reading "Complete the Words"
+task. Claude Code authors questions locally as JSON; you practise locally with
+auto-grading; results sync to a Vercel + Neon cloud practice site behind GitHub
+OAuth.
 
-First, run the development server:
+## How it works
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+Claude Code → questions/*.json → local practice (next dev) → grade locally
+                                        │ auto-upload on submit
+                                        ▼
+        /api/local-sync (server proxy, holds UPLOAD_TOKEN)
+                                        │
+                                        ▼
+   Vercel: /api/results → Neon Postgres → /review, /wrong-words (GitHub OAuth)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local authoring & practice
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. `cp .env.local.example .env.local` and set:
+   - `LOCAL_MODE=1`
+   - `RESULTS_ENDPOINT` — your deployed `/api/results` URL
+   - `UPLOAD_TOKEN` — same value as the deployed app
+2. Ask Claude Code to write questions into `questions/*.json`. See
+   `questions/2026-06-08-example.json` for the format: a ~70-word passage with
+   blanks, each blank giving the leading letters (`shown`) and the full
+   American-spelling `answer`.
+3. `LOCAL_MODE=1 npm run dev` and open http://localhost:3000.
+4. Pick a question, fill in the missing letters, and submit. You are graded
+   locally and the result is auto-synced to the cloud.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Local question files are gitignored (`/questions/*.json`); they live in the
+cloud database after syncing.
 
-## Learn More
+## Cloud deploy (Vercel)
 
-To learn more about Next.js, take a look at the following resources:
+1. Create a Neon Postgres database; set `DATABASE_URL`.
+2. `npm run db:push` to create the tables.
+3. Create a GitHub OAuth app; set `GITHUB_ID`, `GITHUB_SECRET`, and callback
+   URL `https://<app>/api/auth/callback/github`.
+4. Set `ALLOWED_GITHUB_LOGIN` (your GitHub username), `AUTH_SECRET`,
+   `UPLOAD_TOKEN` (same as local). `AUTH_URL` is auto-detected on Vercel.
+5. Do **not** set `LOCAL_MODE` in production — that keeps the local authoring
+   routes disabled and enables the OAuth gate.
+6. Deploy. Visit `/review` and sign in with GitHub; only `ALLOWED_GITHUB_LOGIN`
+   is allowed in.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variable | Used by | Notes |
+|----------|---------|-------|
+| `LOCAL_MODE` | local | `1` enables local authoring/practice routes |
+| `RESULTS_ENDPOINT` | local | deployed `/api/results` URL |
+| `UPLOAD_TOKEN` | local + cloud | Bearer token for `/api/results` |
+| `DATABASE_URL` | cloud | Neon Postgres connection string |
+| `GITHUB_ID` / `GITHUB_SECRET` | cloud | GitHub OAuth app credentials |
+| `ALLOWED_GITHUB_LOGIN` | cloud | the single allowed GitHub username |
+| `AUTH_SECRET` | cloud | Auth.js v5 session secret |
+| `AUTH_URL` | cloud | optional on Vercel (auto-detected) |
 
-## Deploy on Vercel
+## Tests
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm test          # unit tests (grading, schema, loader, ingestion)
+npm run lint
+npm run build
+```
