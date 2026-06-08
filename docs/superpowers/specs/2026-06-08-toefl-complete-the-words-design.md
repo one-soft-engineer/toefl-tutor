@@ -166,7 +166,7 @@
 | 變數 | 用途 | 範圍 |
 |------|------|------|
 | `LOCAL_MODE` | 開啟本地出題/作答路由 | 本地 |
-| `DATABASE_URL` | Neon Postgres 連線 | 雲端（本地 POST 目標也需要） |
+| `DATABASE_URL` | Neon Postgres 連線（本地不需要，本地只 POST 到雲端 API） | 雲端 |
 | `UPLOAD_TOKEN` | `/api/results` Bearer 驗證 | 本地 + 雲端共用 |
 | `RESULTS_ENDPOINT` | 本地交卷上傳目標 URL | 本地 |
 | `GITHUB_ID` / `GITHUB_SECRET` | NextAuth GitHub OAuth | 雲端 |
