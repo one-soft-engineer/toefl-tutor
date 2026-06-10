@@ -24,9 +24,11 @@ Claude Code → questions/*.json → local practice (next dev) → grade locally
    - `RESULTS_ENDPOINT` — your deployed `/api/results` URL
    - `UPLOAD_TOKEN` — same value as the deployed app
 2. Ask Claude Code to write questions into `questions/*.json`. See
-   `questions/2026-06-08-example.json` for the format: a ~70-word passage with
-   blanks, each blank giving the leading letters (`shown`) and the full
-   American-spelling `answer`.
+   `questions/2026-06-08-example.json` for the format: a ~70-word passage where
+   each blank is written as the sentinel `{}` (in reading order), and a
+   matching ordered `blanks` array giving the leading letters (`shown`) and the
+   full American-spelling `answer`. The app renders each blank as the `shown`
+   letters followed by an input sized to the number of missing letters.
 3. `LOCAL_MODE=1 pnpm dev` and open http://localhost:3000.
 4. Pick a question, fill in the missing letters, and submit. You are graded
    locally and the result is auto-synced to the cloud.
