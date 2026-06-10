@@ -13,7 +13,7 @@ export default async function Home() {
   const { questions, errors } = await loadAllQuestions();
 
   return (
-    <main className="max-w-2xl mx-auto p-8 space-y-6">
+    <main className="max-w-2xl mx-auto p-4 sm:p-8 space-y-6">
       <h1 className="text-2xl font-bold">Local Question Bank</h1>
 
       {questions.length === 0 && errors.length === 0 && (
