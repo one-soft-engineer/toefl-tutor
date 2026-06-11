@@ -44,7 +44,7 @@ export default async function ReviewList({
     : await db.select().from(questions).orderBy(desc(questions.createdAt));
 
   return (
-    <main className="max-w-2xl mx-auto p-4 sm:p-8 space-y-6">
+    <main className="w-full max-w-2xl mx-auto p-4 sm:p-8 space-y-6">
       <h1 className="text-2xl font-bold">Review</h1>
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
         <Link className="underline" href="/review">

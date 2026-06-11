@@ -16,7 +16,7 @@ export default async function PracticePage({
   if (!question) notFound();
 
   return (
-    <main className="max-w-3xl mx-auto p-3 sm:p-6">
+    <main className="w-full max-w-3xl mx-auto p-3 sm:p-6">
       <PracticeClient question={question} />
     </main>
   );
