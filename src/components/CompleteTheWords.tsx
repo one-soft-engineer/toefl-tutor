@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { Question, Blank, BlankAnswer } from "@/lib/types";
 import { gradeAttempt, type GradeResult } from "@/lib/grade";
@@ -14,6 +15,8 @@ interface Props {
   exam?: boolean;
   /** Countdown length in seconds for exam mode (default 180 = 3 minutes). */
   durationSeconds?: number;
+  /** If set, a "Back to questions" link is shown after grading (exam mode). */
+  backHref?: string;
   onGraded?: (result: GradeResult) => void;
 }
 
@@ -23,6 +26,7 @@ export function CompleteTheWords({
   showHints,
   exam = false,
   durationSeconds = 180,
+  backHref,
   onGraded,
 }: Props) {
   const [typed, setTyped] = useState<Record<number, string>>({});
@@ -71,7 +75,7 @@ export function CompleteTheWords({
       <span className="inline-flex items-baseline whitespace-nowrap align-baseline">
         <span className="font-mono">{b.shown}</span>
         <input
-          className={`font-mono tracking-[0.35em] text-center bg-white border rounded-sm px-1 py-0.5 focus:border-[#13395e] focus:outline-none focus:ring-1 focus:ring-[#13395e] disabled:opacity-100 ${state}`}
+          className={`font-mono tracking-[0.35em] text-center bg-white border rounded-sm px-1 py-0.5 focus:border-toefl focus:outline-none focus:ring-1 focus:ring-toefl disabled:opacity-100 ${state}`}
           size={missing + 1}
           maxLength={missing}
           placeholder={"_".repeat(missing)}
@@ -85,9 +89,14 @@ export function CompleteTheWords({
           autoCorrect="off"
           spellCheck={false}
         />
-        {a && !a.correct && (
-          <span className="ml-1 break-all text-red-600">→ {b.answer}</span>
-        )}
+        {a &&
+          (a.correct ? (
+            <span className="ml-1 text-green-600" aria-label="correct">
+              ✓
+            </span>
+          ) : (
+            <span className="ml-1 break-all text-red-600">→ {b.answer}</span>
+          ))}
       </span>
     );
   }
@@ -135,7 +144,7 @@ export function CompleteTheWords({
 
   const submitButton = !result && mode === "answer" && (
     <button
-      className="w-full sm:w-auto bg-[#13395e] text-white px-6 py-2.5 rounded font-medium hover:bg-[#1b4d7e] active:bg-[#0f2e4c]"
+      className="w-full sm:w-auto bg-toefl text-white px-6 py-2.5 rounded font-medium hover:bg-toefl-light active:bg-toefl-dark"
       onClick={submit}
     >
       Submit
@@ -157,7 +166,7 @@ export function CompleteTheWords({
   return (
     <div className="overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm">
       {/* Header bar */}
-      <div className="flex items-center justify-between gap-3 bg-[#13395e] px-4 py-3 text-white">
+      <div className="flex items-center justify-between gap-3 bg-toefl px-4 py-3 text-white">
         <div className="min-w-0">
           <p className="text-xs uppercase tracking-wide text-blue-200">
             Reading
@@ -180,8 +189,8 @@ export function CompleteTheWords({
       {/* Instruction */}
       <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 sm:px-6">
         <p className="text-sm text-gray-600">
-          Complete the words by typing the missing letters. The dashes show how
-          many letters are missing.
+          Complete the words by typing the missing letters. The underscores show
+          how many letters are missing.
         </p>
       </div>
 
@@ -191,7 +200,17 @@ export function CompleteTheWords({
       {/* Action bar */}
       <div className="flex items-center justify-between gap-3 border-t border-gray-200 bg-gray-50 px-4 py-3 sm:px-6">
         <div className="text-sm text-gray-600">{scorePanel}</div>
-        <div className="ml-auto">{submitButton}</div>
+        <div className="ml-auto">
+          {submitButton}
+          {result && backHref && (
+            <Link
+              href={backHref}
+              className="font-medium text-toefl hover:underline"
+            >
+              ← Back to questions
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );

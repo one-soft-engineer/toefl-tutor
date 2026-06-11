@@ -49,6 +49,7 @@ export function PracticeClient({ question }: { question: Question }) {
         question={question}
         mode="answer"
         exam
+        backHref="/"
         onGraded={onGraded}
       />
 

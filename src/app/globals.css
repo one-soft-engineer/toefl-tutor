@@ -12,6 +12,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@theme {
+  /* TOEFL-style exam palette */
+  --color-toefl: #13395e;
+  --color-toefl-light: #1b4d7e;
+  --color-toefl-dark: #0f2e4c;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
