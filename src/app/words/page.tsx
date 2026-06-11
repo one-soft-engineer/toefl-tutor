@@ -77,7 +77,7 @@ export default async function WordsPage({
   const backHref = isLocalMode() ? "/" : "/review";
 
   return (
-    <main className="max-w-2xl mx-auto p-4 sm:p-8 space-y-6">
+    <main className="w-full max-w-2xl lg:max-w-4xl mx-auto p-4 sm:p-8 space-y-6">
       <h1 className="text-2xl font-bold">Words</h1>
 
       <p className="text-sm text-gray-600">
