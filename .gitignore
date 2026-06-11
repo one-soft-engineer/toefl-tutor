@@ -34,8 +34,12 @@ yarn-error.log*
 .env*
 !.env.local.example
 
-# local generated questions (kept out of git; synced to cloud DB instead)
+# local generated questions (kept out of git; live in the DB after practice)
 /questions/*.json
+
+# local SQLite database
+/local.db
+/local.db-*
 
 # vercel
 .vercel

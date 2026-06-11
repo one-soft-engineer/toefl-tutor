@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getUploadToken } from "@/lib/env";
 import { questionSchema } from "@/lib/question-schema";
 import { ingestResult } from "@/lib/ingest";
 import { drizzleIngestDeps } from "@/db/ingest-deps";
 
+// Access control: locally the middleware passes through (LOCAL_MODE); in the
+// cloud the middleware's GitHub OAuth gate protects this route. The practice
+// page posts here same-origin to persist a graded attempt.
 const payloadSchema = z.object({
   question: questionSchema,
   answers: z.array(
@@ -18,12 +20,6 @@ const payloadSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = req.headers.get("authorization") ?? "";
-  const expected = `Bearer ${getUploadToken()}`;
-  if (auth !== expected) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
-
   let parsed;
   try {
     parsed = payloadSchema.parse(await req.json());

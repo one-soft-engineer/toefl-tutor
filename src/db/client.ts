@@ -1,20 +1,19 @@
-import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 import * as schema from "./schema";
 
 type DB = ReturnType<typeof drizzle<typeof schema>>;
 
 let cached: DB | null = null;
 
-// Lazily create the client so importing this module (e.g. during `next build`
-// page-data collection) does not require DATABASE_URL to be set.
+// Lazily create the client. Locally (no Turso env) this is a SQLite file;
+// in the cloud it points at Turso (libSQL over HTTP). Lazy so importing this
+// module during `next build` page-data collection does not open a connection.
 export function getDb(): DB {
   if (!cached) {
-    const url = process.env.DATABASE_URL;
-    if (!url) {
-      throw new Error("DATABASE_URL is not set");
-    }
-    cached = drizzle(neon(url), { schema });
+    const url = process.env.TURSO_DATABASE_URL ?? "file:local.db";
+    const authToken = process.env.TURSO_AUTH_TOKEN;
+    cached = drizzle(createClient({ url, authToken }), { schema });
   }
   return cached;
 }

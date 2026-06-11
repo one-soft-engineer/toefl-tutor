@@ -20,7 +20,7 @@ export function PracticeClient({ question }: { question: Question }) {
   async function upload(payload: ResultsPayload) {
     setSync("syncing");
     try {
-      const res = await fetch("/api/local-sync", {
+      const res = await fetch("/api/results", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -53,11 +53,11 @@ export function PracticeClient({ question }: { question: Question }) {
         onGraded={onGraded}
       />
 
-      {sync === "syncing" && <p className="text-gray-500">Syncing…</p>}
-      {sync === "ok" && <p className="text-green-600">Synced to cloud.</p>}
+      {sync === "syncing" && <p className="text-gray-500">Saving…</p>}
+      {sync === "ok" && <p className="text-green-600">Saved.</p>}
       {sync === "failed" && (
         <div className="text-red-600 space-x-2">
-          <span>Sync failed (saved locally).</span>
+          <span>Save failed (kept locally).</span>
           <button
             className="underline"
             onClick={() => lastPayload && upload(lastPayload)}

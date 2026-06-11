@@ -1,36 +1,37 @@
-import {
-  pgTable,
-  uuid,
-  text,
-  integer,
-  timestamp,
-  jsonb,
-} from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import type { Blank, BlankAnswer } from "@/lib/types";
 
-export const questions = pgTable("questions", {
-  id: uuid("id").defaultRandom().primaryKey(),
+const uuid = () => crypto.randomUUID();
+
+export const questions = sqliteTable("questions", {
+  id: text("id").primaryKey().$defaultFn(uuid),
   passage: text("passage").notNull(),
-  blanks: jsonb("blanks").$type<Blank[]>().notNull(),
+  blanks: text("blanks", { mode: "json" }).$type<Blank[]>().notNull(),
   topic: text("topic").notNull(),
   source: text("source").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
 });
 
-export const attempts = pgTable("attempts", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  questionId: uuid("question_id")
+export const attempts = sqliteTable("attempts", {
+  id: text("id").primaryKey().$defaultFn(uuid),
+  questionId: text("question_id")
     .references(() => questions.id)
     .notNull(),
-  answers: jsonb("answers").$type<BlankAnswer[]>().notNull(),
+  answers: text("answers", { mode: "json" }).$type<BlankAnswer[]>().notNull(),
   score: integer("score").notNull(),
-  takenAt: timestamp("taken_at").defaultNow().notNull(),
+  takenAt: integer("taken_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
 });
 
-export const wrongWords = pgTable("wrong_words", {
-  id: uuid("id").defaultRandom().primaryKey(),
+export const wrongWords = sqliteTable("wrong_words", {
+  id: text("id").primaryKey().$defaultFn(uuid),
   word: text("word").notNull().unique(),
   wrongCount: integer("wrong_count").notNull().default(1),
-  lastQuestionId: uuid("last_question_id").references(() => questions.id),
-  lastWrongAt: timestamp("last_wrong_at").defaultNow().notNull(),
+  lastQuestionId: text("last_question_id").references(() => questions.id),
+  lastWrongAt: integer("last_wrong_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
 });

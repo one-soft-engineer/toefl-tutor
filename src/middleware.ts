@@ -8,8 +8,9 @@ const localPassthrough = () => NextResponse.next();
 
 const guarded = auth((req) => {
   const { pathname } = req.nextUrl;
-  // Token-authenticated upload + the auth endpoints are exempt from the session gate.
-  if (pathname.startsWith("/api/auth") || pathname.startsWith("/api/results")) {
+  // The auth endpoints are exempt; everything else (incl. /api/results) is
+  // behind the session gate in the cloud.
+  if (pathname.startsWith("/api/auth")) {
     return NextResponse.next();
   }
   if (!req.auth) {

@@ -45,7 +45,7 @@ export const drizzleIngestDeps: IngestDeps = {
         set: {
           wrongCount: sql`${wrongWords.wrongCount} + 1`,
           lastQuestionId: questionId,
-          lastWrongAt: sql`now()`,
+          lastWrongAt: new Date(),
         },
       });
   },
