@@ -45,7 +45,12 @@ export function PracticeClient({ question }: { question: Question }) {
 
   return (
     <div className="space-y-4">
-      <CompleteTheWords question={question} mode="answer" onGraded={onGraded} />
+      <CompleteTheWords
+        question={question}
+        mode="answer"
+        exam
+        onGraded={onGraded}
+      />
 
       {sync === "syncing" && <p className="text-gray-500">Syncing…</p>}
       {sync === "ok" && <p className="text-green-600">Synced to cloud.</p>}
