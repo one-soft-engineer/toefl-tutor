@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import type { Question, Blank, BlankAnswer } from "@/lib/types";
 import { gradeAttempt, type GradeResult } from "@/lib/grade";
 import { splitPassage, missingLength } from "@/lib/passage";
@@ -28,14 +28,15 @@ export function CompleteTheWords({
   const [typed, setTyped] = useState<Record<number, string>>({});
   const [result, setResult] = useState<GradeResult | null>(null);
   const [remaining, setRemaining] = useState(durationSeconds);
+  const submittedRef = useRef(false);
 
   function submit() {
-    setResult((prev) => {
-      if (prev) return prev; // already graded (e.g. timer + click race)
-      const r = gradeAttempt(question, typed);
-      onGraded?.(r);
-      return r;
-    });
+    // Guard against a double submit (e.g. timer reaching 0 and a click racing).
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+    const r = gradeAttempt(question, typed);
+    setResult(r);
+    onGraded?.(r);
   }
 
   // Exam countdown: tick once per second; the final tick (reaching 0) submits
