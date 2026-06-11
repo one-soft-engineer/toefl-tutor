@@ -113,7 +113,7 @@ export default async function WordsPage({
               return (
                 <tr key={r.word} className="border-b">
                   <td
-                    className={`px-4 sm:px-0 py-2 font-mono break-all ${
+                    className={`px-4 sm:px-0 py-2 font-mono whitespace-nowrap ${
                       r.status === "wrong" ? "font-semibold text-red-700" : ""
                     }`}
                   >
