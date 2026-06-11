@@ -53,8 +53,8 @@ export default async function ReviewList({
         <Link className="underline" href="/review?wrongOnly=1">
           Answered wrong
         </Link>
-        <Link className="underline" href="/wrong-words">
-          Wrong words
+        <Link className="underline" href="/words">
+          Words
         </Link>
       </div>
       <ul className="space-y-2">
