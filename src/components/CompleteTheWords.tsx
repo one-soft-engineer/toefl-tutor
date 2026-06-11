@@ -32,6 +32,7 @@ export function CompleteTheWords({
   const [typed, setTyped] = useState<Record<number, string>>({});
   const [result, setResult] = useState<GradeResult | null>(null);
   const [remaining, setRemaining] = useState(durationSeconds);
+  const [focused, setFocused] = useState<number | null>(null);
   const submittedRef = useRef(false);
 
   function submit() {
@@ -61,34 +62,53 @@ export function CompleteTheWords({
     return result?.answers.find((a) => a.index === index);
   }
 
-  // A blank renders its shown prefix, then a small box whose width/underscores
-  // show exactly how many letters are missing.
+  // A blank renders its shown prefix, then one underlined cell per missing
+  // letter so the number of slots is always visible. A single transparent
+  // input overlays the cells and captures typing.
   function renderBlank(b: Blank) {
     const missing = missingLength(b.shown, b.answer);
     const a = answerFor(b.index);
-    const state = a
+    const value = typed[b.index] ?? "";
+    const cellColor = a
       ? a.correct
         ? "border-green-500 text-green-700"
         : "border-red-500 text-red-700"
-      : "border-gray-400";
+      : "border-gray-400 text-gray-900";
     return (
       <span className="inline-flex items-baseline whitespace-nowrap align-baseline">
         <span className="font-mono">{b.shown}</span>
-        <input
-          className={`font-mono tracking-[0.35em] text-center bg-white border rounded-sm px-1 py-0.5 focus:border-toefl focus:outline-none focus:ring-1 focus:ring-toefl disabled:opacity-100 ${state}`}
-          size={missing + 1}
-          maxLength={missing}
-          placeholder={"_".repeat(missing)}
-          value={typed[b.index] ?? ""}
-          disabled={!!result}
-          onChange={(e) =>
-            setTyped((t) => ({ ...t, [b.index]: e.target.value }))
-          }
-          aria-label={`blank ${b.index + 1}`}
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-        />
+        <span className="relative mx-0.5 inline-block align-baseline">
+          <span className="inline-flex gap-1" aria-hidden>
+            {Array.from({ length: missing }).map((_, i) => {
+              const active = !result && focused === b.index && value.length === i;
+              return (
+                <span
+                  key={i}
+                  className={`inline-block w-[1.1ch] text-center font-mono leading-tight border-b-2 ${cellColor} ${
+                    active ? "border-toefl bg-blue-50" : ""
+                  }`}
+                >
+                  {value[i] ?? " "}
+                </span>
+              );
+            })}
+          </span>
+          <input
+            className="absolute inset-0 h-full w-full cursor-text bg-transparent text-transparent opacity-0 outline-none"
+            value={value}
+            disabled={!!result}
+            maxLength={missing}
+            onChange={(e) =>
+              setTyped((t) => ({ ...t, [b.index]: e.target.value }))
+            }
+            onFocus={() => setFocused(b.index)}
+            onBlur={() => setFocused((f) => (f === b.index ? null : f))}
+            aria-label={`blank ${b.index + 1}, ${missing} letters`}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+          />
+        </span>
         {a &&
           (a.correct ? (
             <span className="ml-1 text-green-600" aria-label="correct">
