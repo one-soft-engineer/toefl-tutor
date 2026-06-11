@@ -1,51 +1,54 @@
 # TOEFL Complete-the-Words Tutor
 
 Single-user tool for practising the TOEFL iBT 2026 Reading "Complete the Words"
-task. Claude Code authors questions locally as JSON; you practise locally with
-auto-grading; results sync to a Vercel + Neon cloud practice site behind GitHub
-OAuth.
+task. Claude Code authors questions locally as JSON; you practise them in a
+TOEFL-style exam UI; graded attempts are stored in a database so you can review
+which words you've learned and which you got wrong.
+
+The same codebase runs two ways, with a single Drizzle (libSQL/SQLite) schema:
+
+- **Local** (`pnpm dev`, `LOCAL_MODE=1`): data lives in a SQLite file
+  (`local.db`). No external service, works offline.
+- **Cloud** (Vercel): data lives in [Turso](https://turso.tech) (libSQL over
+  HTTP), behind a GitHub OAuth gate that allows only your account.
 
 ## How it works
 
 ```
-Claude Code → questions/*.json → local practice (next dev) → grade locally
-                                        │ auto-upload on submit
+Claude Code → questions/*.json → practice (TOEFL-style exam UI) → grade locally
+                                        │ POST /api/results
                                         ▼
-        /api/local-sync (server proxy, holds UPLOAD_TOKEN)
+                        Drizzle + libSQL  (file:local.db | Turso)
                                         │
                                         ▼
-   Vercel: /api/results → Neon Postgres → /review, /wrong-words (GitHub OAuth)
+                    /review · /words · /wrong-words
 ```
 
 ## Local authoring & practice
 
-1. `cp .env.local.example .env.local` and set:
-   - `LOCAL_MODE=1`
-   - `RESULTS_ENDPOINT` — your deployed `/api/results` URL
-   - `UPLOAD_TOKEN` — same value as the deployed app
-2. Ask Claude Code to write questions into `questions/*.json`. See
+1. `cp .env.local.example .env.local` and set `LOCAL_MODE=1` (Turso vars can stay
+   unset — the app falls back to `file:local.db`).
+2. `pnpm db:push` to create the tables in `local.db`.
+3. Ask Claude Code to write questions into `questions/*.json`. See
    `questions/2026-06-08-example.json` for the format: a ~70-word passage where
-   each blank is written as the sentinel `{}` (in reading order), and a
-   matching ordered `blanks` array giving the leading letters (`shown`) and the
-   full American-spelling `answer`. The app renders each blank as the `shown`
-   letters followed by an input sized to the number of missing letters.
-3. `LOCAL_MODE=1 pnpm dev` and open http://localhost:3000.
-4. Pick a question, fill in the missing letters, and submit. You are graded
-   locally and the result is auto-synced to the cloud.
+   each blank is written as the sentinel `{}` (in reading order), and a matching
+   ordered `blanks` array giving the leading letters (`shown`) and the full
+   American-spelling `answer`.
+4. `LOCAL_MODE=1 pnpm dev` and open http://localhost:3000.
 
-Local question files are gitignored (`/questions/*.json`); they live in the
-cloud database after syncing.
+Local question files and `local.db` are gitignored.
 
 ## Cloud deploy (Vercel)
 
-1. Create a Neon Postgres database; set `DATABASE_URL`.
-2. `pnpm db:push` to create the tables.
-3. Create a GitHub OAuth app; set `GITHUB_ID`, `GITHUB_SECRET`, and callback
-   URL `https://<app>/api/auth/callback/github`.
-4. Set `ALLOWED_GITHUB_LOGIN` (your GitHub username), `AUTH_SECRET`,
-   `UPLOAD_TOKEN` (same as local). `AUTH_URL` is auto-detected on Vercel.
-5. Do **not** set `LOCAL_MODE` in production — that keeps the local authoring
-   routes disabled and enables the OAuth gate.
+1. Add the **Turso Cloud** integration from the Vercel Marketplace and create a
+   database; it sets `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` automatically.
+2. `pnpm db:push` against the Turso database to create the tables.
+3. Create a GitHub OAuth app; set `GITHUB_ID`, `GITHUB_SECRET`, and callback URL
+   `https://<app>/api/auth/callback/github`.
+4. Set `ALLOWED_GITHUB_LOGIN` (your GitHub username) and `AUTH_SECRET`.
+   `AUTH_URL` is auto-detected on Vercel.
+5. Do **not** set `LOCAL_MODE` in production — that enables the OAuth gate and
+   the cloud database.
 6. Deploy. Visit `/review` and sign in with GitHub; only `ALLOWED_GITHUB_LOGIN`
    is allowed in.
 
@@ -53,10 +56,9 @@ cloud database after syncing.
 
 | Variable | Used by | Notes |
 |----------|---------|-------|
-| `LOCAL_MODE` | local | `1` enables local authoring/practice routes |
-| `RESULTS_ENDPOINT` | local | deployed `/api/results` URL |
-| `UPLOAD_TOKEN` | local + cloud | Bearer token for `/api/results` |
-| `DATABASE_URL` | cloud | Neon Postgres connection string |
+| `LOCAL_MODE` | local | `1` enables local routes and the `local.db` SQLite file |
+| `TURSO_DATABASE_URL` | cloud | Turso libSQL URL (set by the Vercel integration) |
+| `TURSO_AUTH_TOKEN` | cloud | Turso auth token (set by the Vercel integration) |
 | `GITHUB_ID` / `GITHUB_SECRET` | cloud | GitHub OAuth app credentials |
 | `ALLOWED_GITHUB_LOGIN` | cloud | the single allowed GitHub username |
 | `AUTH_SECRET` | cloud | Auth.js v5 session secret |
@@ -69,7 +71,7 @@ typecheck, lint, test, and build on every push and pull request.
 
 ```bash
 pnpm install
-pnpm test          # unit tests (grading, schema, loader, ingestion)
+pnpm test          # unit tests (grading, schema, loader, ingestion, helpers)
 pnpm typecheck
 pnpm lint
 pnpm build
