@@ -14,7 +14,12 @@ export default async function Home() {
 
   return (
     <main className="max-w-2xl mx-auto p-4 sm:p-8 space-y-6">
-      <h1 className="text-2xl font-bold">Local Question Bank</h1>
+      <div className="flex items-baseline justify-between gap-3">
+        <h1 className="text-2xl font-bold">Local Question Bank</h1>
+        <Link className="text-sm text-blue-600 underline" href="/words">
+          Words →
+        </Link>
+      </div>
 
       {questions.length === 0 && errors.length === 0 && (
         <p className="text-gray-500">
