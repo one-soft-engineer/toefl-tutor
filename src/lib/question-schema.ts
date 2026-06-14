@@ -7,6 +7,7 @@ const blankSchema = z
     shown: z.string().min(1),
     answer: z.string().min(1),
     hint: z.string().optional(),
+    example: z.string().optional(),
   })
   .refine((b) => b.answer.toLowerCase().startsWith(b.shown.toLowerCase()), {
     message: "answer must start with the shown letters",

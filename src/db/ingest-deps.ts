@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { getDb } from "./client";
-import { questions, attempts, wrongWords } from "./schema";
+import { questions, attempts, wrongWords, cardProgress } from "./schema";
 import type { IngestDeps } from "@/lib/ingest";
 
 export const drizzleIngestDeps: IngestDeps = {
@@ -47,6 +47,17 @@ export const drizzleIngestDeps: IngestDeps = {
           lastQuestionId: questionId,
           lastWrongAt: new Date(),
         },
+      });
+
+    // A quiz mistake re-trains the word regardless of prior flashcard mastery:
+    // reset its Leitner progress to box 1, due immediately.
+    const now = new Date();
+    await db
+      .insert(cardProgress)
+      .values({ word, box: 1, dueAt: now })
+      .onConflictDoUpdate({
+        target: cardProgress.word,
+        set: { box: 1, dueAt: now },
       });
   },
 };
