@@ -71,9 +71,9 @@ export function CompleteTheWords({
     const value = typed[b.index] ?? "";
     const cellColor = a
       ? a.correct
-        ? "border-green-500 text-green-700"
-        : "border-red-500 text-red-700"
-      : "border-gray-400 text-gray-900";
+        ? "border-ok text-ok"
+        : "border-bad text-bad"
+      : "border-muted text-fg";
     return (
       <span className="inline-flex items-baseline whitespace-nowrap align-baseline">
         <span className="font-mono">{b.shown}</span>
@@ -85,10 +85,10 @@ export function CompleteTheWords({
                 <span
                   key={i}
                   className={`inline-block w-[1.1ch] text-center font-mono leading-tight border-b-2 ${cellColor} ${
-                    active ? "border-toefl bg-blue-50" : ""
+                    active ? "border-accent bg-accent-soft" : ""
                   }`}
                 >
-                  {value[i] ?? " "}
+                  {value[i] ?? " "}
                 </span>
               );
             })}
@@ -111,11 +111,11 @@ export function CompleteTheWords({
         </span>
         {a &&
           (a.correct ? (
-            <span className="ml-1 text-green-600" aria-label="correct">
+            <span className="ml-1 text-ok" aria-label="correct">
               ✓
             </span>
           ) : (
-            <span className="ml-1 break-all text-red-600">→ {b.answer}</span>
+            <span className="ml-1 break-all text-bad">→ {b.answer}</span>
           ))}
       </span>
     );
@@ -127,7 +127,7 @@ export function CompleteTheWords({
   );
 
   const passageBody = inline ? (
-    <p className="text-base sm:text-lg leading-loose break-words text-gray-900">
+    <p className="text-base sm:text-lg leading-loose break-words text-fg">
       {segments.map((seg, i) => (
         <Fragment key={i}>
           {seg}
@@ -137,7 +137,7 @@ export function CompleteTheWords({
     </p>
   ) : (
     <>
-      <p className="text-base sm:text-lg leading-relaxed break-words text-gray-900">
+      <p className="text-base sm:text-lg leading-relaxed break-words text-fg">
         {question.passage}
       </p>
       <ol className="mt-4 space-y-3">
@@ -148,7 +148,7 @@ export function CompleteTheWords({
           >
             {renderBlank(b)}
             {showHints && b.hint && (
-              <span className="text-sm text-gray-500">({b.hint})</span>
+              <span className="text-sm text-muted">({b.hint})</span>
             )}
           </li>
         ))}
@@ -157,14 +157,14 @@ export function CompleteTheWords({
   );
 
   const scorePanel = result && (
-    <p className="font-semibold text-gray-900">
+    <p className="font-semibold text-fg">
       Score: {result.score} / {result.total}
     </p>
   );
 
   const submitButton = !result && mode === "answer" && (
     <button
-      className="w-full sm:w-auto bg-toefl text-white px-6 py-2.5 rounded font-medium hover:bg-toefl-light active:bg-toefl-dark"
+      className="w-full rounded-lg bg-accent px-6 py-2.5 font-medium text-accent-fg transition-colors hover:bg-accent-hover sm:w-auto"
       onClick={submit}
     >
       Submit
@@ -184,11 +184,11 @@ export function CompleteTheWords({
   // ---- Exam shell ----
   const low = remaining <= 30 && !result;
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-300 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
       {/* Header bar */}
-      <div className="flex items-center justify-between gap-3 bg-toefl px-4 py-3 text-white">
+      <div className="flex items-center justify-between gap-3 bg-accent px-4 py-3 text-accent-fg">
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-wide text-blue-200">
+          <p className="text-xs uppercase tracking-wide text-accent-fg/70">
             Reading
           </p>
           <h2 className="truncate text-sm font-semibold sm:text-base">
@@ -196,8 +196,8 @@ export function CompleteTheWords({
           </h2>
         </div>
         <div
-          className={`flex items-center gap-1.5 rounded px-2.5 py-1 font-mono text-sm tabular-nums ${
-            low ? "bg-red-600 text-white" : "bg-white/10 text-white"
+          className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-mono text-sm tabular-nums ${
+            low ? "bg-bad text-white" : "bg-white/15 text-accent-fg"
           }`}
           aria-label="time remaining"
         >
@@ -207,8 +207,8 @@ export function CompleteTheWords({
       </div>
 
       {/* Instruction */}
-      <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 sm:px-6">
-        <p className="text-sm text-gray-600">
+      <div className="border-b border-border bg-surface-2 px-4 py-3 sm:px-6">
+        <p className="text-sm text-muted">
           Complete the words by typing the missing letters. The underscores show
           how many letters are missing.
         </p>
@@ -218,14 +218,14 @@ export function CompleteTheWords({
       <div className="px-4 py-5 sm:px-6 sm:py-6">{passageBody}</div>
 
       {/* Action bar */}
-      <div className="flex items-center justify-between gap-3 border-t border-gray-200 bg-gray-50 px-4 py-3 sm:px-6">
-        <div className="text-sm text-gray-600">{scorePanel}</div>
+      <div className="flex items-center justify-between gap-3 border-t border-border bg-surface-2 px-4 py-3 sm:px-6">
+        <div className="text-sm text-muted">{scorePanel}</div>
         <div className="ml-auto">
           {submitButton}
           {result && backHref && (
             <Link
               href={backHref}
-              className="font-medium text-toefl hover:underline"
+              className="font-medium text-accent hover:underline"
             >
               ← Back to questions
             </Link>
