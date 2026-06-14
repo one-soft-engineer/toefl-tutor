@@ -56,6 +56,9 @@ export default async function ReviewList({
         <Link className="underline" href="/words">
           Words
         </Link>
+        <Link className="underline" href="/flashcards">
+          Flashcards
+        </Link>
       </div>
       <ul className="space-y-2">
         {list.map((q) => (

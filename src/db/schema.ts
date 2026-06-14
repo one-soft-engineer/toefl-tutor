@@ -35,3 +35,13 @@ export const wrongWords = sqliteTable("wrong_words", {
     .notNull()
     .$defaultFn(() => new Date()),
 });
+
+// Leitner spaced-repetition progress per word (for flashcards).
+export const cardProgress = sqliteTable("card_progress", {
+  word: text("word").primaryKey(),
+  box: integer("box").notNull().default(1),
+  dueAt: integer("due_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  lastReviewedAt: integer("last_reviewed_at", { mode: "timestamp" }),
+});

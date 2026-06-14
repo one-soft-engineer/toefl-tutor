@@ -3,6 +3,7 @@ export interface Blank {
   shown: string; // leading letters shown to the user
   answer: string; // full correct word, American spelling
   hint?: string;
+  example?: string; // a standalone example sentence using the word (for flashcards)
 }
 
 export interface Question {

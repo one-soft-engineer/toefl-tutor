@@ -92,6 +92,9 @@ export default async function WordsPage({
         <Link className="underline" href="/words?filter=wrong">
           Wrong only
         </Link>
+        <Link className="underline" href="/flashcards">
+          Flashcards
+        </Link>
         <Link className="underline" href={backHref}>
           ← Back
         </Link>
