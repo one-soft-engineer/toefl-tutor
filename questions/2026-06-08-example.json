@@ -3,9 +3,9 @@
   "source": "2026-06-08-example",
   "passage": "Coral reefs are among the most {} ecosystems on Earth. They {} shelter for thousands of {} and support coastal {} that depend on fishing and tourism.",
   "blanks": [
-    { "index": 0, "shown": "di", "answer": "diverse", "hint": "varied" },
-    { "index": 1, "shown": "prov", "answer": "provide" },
-    { "index": 2, "shown": "spec", "answer": "species" },
-    { "index": 3, "shown": "commun", "answer": "communities" }
+    { "index": 0, "shown": "di", "answer": "diverse", "hint": "varied", "example": "The rainforest is home to a diverse range of animals." },
+    { "index": 1, "shown": "prov", "answer": "provide", "hint": "give or supply", "example": "Trees provide shade on a hot day." },
+    { "index": 2, "shown": "spec", "answer": "species", "hint": "a type of living thing", "example": "The panda is an endangered species." },
+    { "index": 3, "shown": "commun", "answer": "communities", "hint": "groups living together", "example": "Many small communities live along the river." }
   ]
 }
