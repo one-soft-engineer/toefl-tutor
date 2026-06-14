@@ -53,10 +53,10 @@ export function PracticeClient({ question }: { question: Question }) {
         onGraded={onGraded}
       />
 
-      {sync === "syncing" && <p className="text-gray-500">Saving…</p>}
-      {sync === "ok" && <p className="text-green-600">Saved.</p>}
+      {sync === "syncing" && <p className="text-muted">Saving…</p>}
+      {sync === "ok" && <p className="text-ok">Saved.</p>}
       {sync === "failed" && (
-        <div className="text-red-600 space-x-2">
+        <div className="space-x-2 text-bad">
           <span>Save failed (kept locally).</span>
           <button
             className="underline"

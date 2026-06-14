@@ -81,7 +81,7 @@ export default async function FlashcardsPage() {
   const backHref = isLocalMode() ? "/" : "/review";
 
   return (
-    <main className="w-full max-w-xl mx-auto p-4 sm:p-8">
+    <main className="mx-auto w-full max-w-xl px-4 py-6 sm:px-6 sm:py-10">
       <StudyClient deck={studyCards} backHref={backHref} />
     </main>
   );

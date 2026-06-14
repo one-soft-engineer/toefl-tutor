@@ -13,45 +13,51 @@ export default async function Home() {
   const { questions, errors } = await loadAllQuestions();
 
   return (
-    <main className="w-full max-w-2xl mx-auto p-4 sm:p-8 space-y-6">
-      <div className="flex items-baseline justify-between gap-3">
-        <h1 className="text-2xl font-bold">Local Question Bank</h1>
-        <div className="flex gap-3 text-sm">
-          <Link className="text-blue-600 underline" href="/flashcards">
-            Flashcards
-          </Link>
-          <Link className="text-blue-600 underline" href="/words">
-            Words
-          </Link>
-        </div>
-      </div>
+    <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
+      <header className="mb-6 sm:mb-8">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          Question Bank
+        </h1>
+        <p className="mt-1 text-muted">
+          Pick a passage and complete the words against the clock.
+        </p>
+      </header>
 
       {questions.length === 0 && errors.length === 0 && (
-        <p className="text-gray-500">
+        <div className="rounded-xl border border-dashed border-border bg-surface p-8 text-center text-muted">
           No questions yet. Ask Claude Code to generate some into{" "}
-          <code>questions/</code>.
-        </p>
+          <code className="rounded bg-surface-2 px-1.5 py-0.5">questions/</code>.
+        </div>
       )}
 
-      <ul className="space-y-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         {questions.map((q) => (
-          <li key={q.file}>
-            <Link
-              className="text-blue-600 underline"
-              href={`/practice/${q.file}`}
-            >
-              {q.question.topic} — {q.file}
-            </Link>
-          </li>
+          <Link
+            key={q.file}
+            href={`/practice/${q.file}`}
+            className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:border-accent hover:shadow-md"
+          >
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-fg">
+                {q.question.topic}
+              </p>
+              <p className="mt-0.5 text-sm text-muted">
+                {q.question.blanks.length} blanks
+              </p>
+            </div>
+            <span className="text-muted transition group-hover:translate-x-0.5 group-hover:text-accent">
+              →
+            </span>
+          </Link>
         ))}
-      </ul>
+      </div>
 
       {errors.length > 0 && (
-        <div>
-          <h2 className="text-red-600 font-semibold">Invalid files</h2>
-          <ul className="space-y-1">
+        <div className="mt-6 rounded-xl border border-bad/40 bg-bad-soft p-4">
+          <h2 className="font-semibold text-bad">Invalid files</h2>
+          <ul className="mt-1 space-y-1 text-sm text-bad">
             {errors.map((e) => (
-              <li key={e.file} className="text-red-600 text-sm">
+              <li key={e.file}>
                 {e.file}: {e.error}
               </li>
             ))}

@@ -16,7 +16,7 @@ export default async function PracticePage({
   if (!question) notFound();
 
   return (
-    <main className="w-full max-w-3xl mx-auto p-3 sm:p-6">
+    <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
       <PracticeClient question={question} />
     </main>
   );

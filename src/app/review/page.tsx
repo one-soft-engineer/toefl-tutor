@@ -11,12 +11,11 @@ export default async function ReviewList({
   searchParams: Promise<{ wrongOnly?: string }>;
 }) {
   const { wrongOnly } = await searchParams;
+  const onlyWrong = wrongOnly === "1";
   const db = getDb();
 
   let questionIds: string[] | null = null;
-  if (wrongOnly === "1") {
-    // A question counts as "answered wrong" when an attempt's score is below
-    // its number of blanks.
+  if (onlyWrong) {
     const rows = await db
       .select({ id: attempts.questionId, score: attempts.score })
       .from(attempts);
@@ -43,33 +42,53 @@ export default async function ReviewList({
       : []
     : await db.select().from(questions).orderBy(desc(questions.createdAt));
 
+  const pill = (active: boolean) =>
+    "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors " +
+    (active
+      ? "bg-accent text-accent-fg"
+      : "bg-surface-2 text-muted hover:text-fg");
+
   return (
-    <main className="w-full max-w-2xl mx-auto p-4 sm:p-8 space-y-6">
-      <h1 className="text-2xl font-bold">Review</h1>
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-        <Link className="underline" href="/review">
+    <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
+      <header className="mb-5">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Review</h1>
+        <p className="mt-1 text-muted">Replay questions you have practised.</p>
+      </header>
+
+      <div className="mb-4 flex gap-2">
+        <Link href="/review" className={pill(!onlyWrong)}>
           All
         </Link>
-        <Link className="underline" href="/review?wrongOnly=1">
+        <Link href="/review?wrongOnly=1" className={pill(onlyWrong)}>
           Answered wrong
         </Link>
-        <Link className="underline" href="/words">
-          Words
-        </Link>
-        <Link className="underline" href="/flashcards">
-          Flashcards
-        </Link>
       </div>
-      <ul className="space-y-2">
+
+      <div className="grid gap-3 sm:grid-cols-2">
         {list.map((q) => (
-          <li key={q.id}>
-            <Link className="text-blue-600 underline" href={`/review/${q.id}`}>
-              {q.topic} — {new Date(q.createdAt).toLocaleDateString()}
-            </Link>
-          </li>
+          <Link
+            key={q.id}
+            href={`/review/${q.id}`}
+            className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:border-accent hover:shadow-md"
+          >
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-fg">{q.topic}</p>
+              <p className="mt-0.5 text-sm text-muted">
+                {new Date(q.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+            <span className="text-muted transition group-hover:translate-x-0.5 group-hover:text-accent">
+              →
+            </span>
+          </Link>
         ))}
-      </ul>
-      {list.length === 0 && <p className="text-gray-500">Nothing here yet.</p>}
+      </div>
+
+      {list.length === 0 && (
+        <div className="rounded-xl border border-dashed border-border bg-surface p-8 text-center text-muted">
+          Nothing here yet.
+        </div>
+      )}
     </main>
   );
 }
