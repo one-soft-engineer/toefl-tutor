@@ -1,20 +1,26 @@
 import { describe, it, expect } from "vitest";
-import { fillPassage } from "@/lib/fill-passage";
+import { exampleSentence } from "@/lib/fill-passage";
 import type { Blank } from "@/lib/types";
 
 const blanks: Blank[] = [
-  { index: 0, shown: "di", answer: "diverse" },
-  { index: 1, shown: "prov", answer: "provide" },
+  { index: 0, shown: "co", answer: "coral" },
+  { index: 1, shown: "di", answer: "diverse" },
+  { index: 2, shown: "prov", answer: "provide" },
 ];
+const passage = "Reefs are {}. They are {} and {} shelter for fish.";
 
-describe("fillPassage", () => {
-  it("replaces each {} with its answer in order", () => {
-    expect(fillPassage("Reefs are {} and {} shelter.", blanks)).toBe(
-      "Reefs are diverse and provide shelter."
+describe("exampleSentence", () => {
+  it("returns only the sentence containing the target blank, filled", () => {
+    expect(exampleSentence(passage, blanks, 0)).toBe("Reefs are coral.");
+    expect(exampleSentence(passage, blanks, 1)).toBe(
+      "They are diverse and provide shelter for fish."
+    );
+    expect(exampleSentence(passage, blanks, 2)).toBe(
+      "They are diverse and provide shelter for fish."
     );
   });
 
-  it("returns the passage unchanged when there are no sentinels", () => {
-    expect(fillPassage("No blanks here.", blanks)).toBe("No blanks here.");
+  it("falls back to the whole filled passage if no sentence is found", () => {
+    expect(exampleSentence("just {} here", blanks, 0)).toBe("just coral here");
   });
 });

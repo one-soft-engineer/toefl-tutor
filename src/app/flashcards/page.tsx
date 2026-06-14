@@ -2,7 +2,7 @@ import { getDb } from "@/db/client";
 import { questions, cardProgress, wrongWords } from "@/db/schema";
 import { isLocalMode } from "@/lib/env";
 import { loadAllQuestions } from "@/lib/load-questions";
-import { fillPassage } from "@/lib/fill-passage";
+import { exampleSentence } from "@/lib/fill-passage";
 import { dueDeck, type DeckCard } from "@/lib/flashcards";
 import type { Blank } from "@/lib/types";
 import { StudyClient, type StudyCard } from "./StudyClient";
@@ -60,7 +60,7 @@ export default async function FlashcardsPage() {
     return {
       word,
       hint: s.blank.hint,
-      example: s.blank.example ?? fillPassage(s.passage, s.blanks),
+      example: s.blank.example ?? exampleSentence(s.passage, s.blanks, s.blank.index),
       topic: s.topic,
       box: p?.box ?? 1,
       dueAt: p?.dueAt ?? now, // never-studied words are due now
