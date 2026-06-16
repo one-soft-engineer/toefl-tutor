@@ -41,6 +41,9 @@ yarn-error.log*
 /local.db
 /local.db-*
 
+# Turso seed dump (contains personal practice data)
+/turso-seed.sql
+
 # vercel
 .vercel
 
