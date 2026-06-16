@@ -108,14 +108,59 @@ Do **not** set `LOCAL_MODE` in Vercel. If sign-in throws a host error, also add
 ## Refreshing content later
 
 The deployed site is read-only. When you author/practice new questions locally and want
-them online, re-seed Turso from your updated `local.db`:
+them online, push your updated `local.db` into Turso with one command:
 
 ```bash
-turso db shell toefl-tutor < turso-seed.sql   # after regenerating the dump, OR
-turso db destroy toefl-tutor && turso db create toefl-tutor --from-file ./local.db
+pnpm db:sync
 ```
 
-Regenerate the dump with: `sqlite3 local.db .dump > turso-seed.sql`.
+`scripts/db-sync.sh` does a **clean reload** (dump `local.db` → drop every table on
+Turso → recreate from the dump), so it's safe to run repeatedly and rows never collide on
+primary keys. It needs the `turso` CLI logged in (`turso auth login`). Override the target
+database with `TURSO_DB_NAME=<name> pnpm db:sync`.
 
-(For a smoother flow later we could add a one-command `pnpm db:sync` that pushes local
-rows straight to Turso — say the word.)
+> Manual fallback if you can't run the script:
+> ```bash
+> sqlite3 local.db .dump > turso-seed.sql
+> turso db destroy toefl-tutor && turso db create toefl-tutor --from-file ./local.db
+> ```
+
+### Scheduling it (optional, macOS)
+
+To refresh automatically instead of remembering to run it, schedule `pnpm db:sync` with
+`launchd`. Save this as `~/Library/LaunchAgents/com.toefl-tutor.dbsync.plist` (edit the
+paths to your pnpm and project, find pnpm with `which pnpm`):
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>            <string>com.toefl-tutor.dbsync</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/pnpm</string>
+    <string>db:sync</string>
+  </array>
+  <key>WorkingDirectory</key> <string>/Users/chuan/Projects/toefl-tutor</string>
+  <key>StartCalendarInterval</key>           <!-- every night at 02:00 -->
+  <dict>
+    <key>Hour</key>    <integer>2</integer>
+    <key>Minute</key>  <integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key>  <string>/tmp/toefl-dbsync.log</string>
+  <key>StandardErrorPath</key><string>/tmp/toefl-dbsync.err</string>
+</dict>
+</plist>
+```
+
+Then load it once:
+
+```bash
+launchctl load ~/Library/LaunchAgents/com.toefl-tutor.dbsync.plist
+```
+
+It only runs while the Mac is awake; a job missed while asleep runs at the next wake.
+Unload with `launchctl unload ...` to stop. (`launchd` is preferred over `cron` on
+modern macOS.)

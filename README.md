@@ -49,8 +49,35 @@ Local question files and `local.db` are gitignored.
    `AUTH_URL` is auto-detected on Vercel.
 5. Do **not** set `LOCAL_MODE` in production — that enables the OAuth gate and
    the cloud database.
-6. Deploy. Visit `/review` and sign in with GitHub; only `ALLOWED_GITHUB_LOGIN`
-   is allowed in.
+6. Deploy. Visit `/review` and sign in with GitHub; only logins in
+   `ALLOWED_GITHUB_LOGIN` are allowed in.
+
+## Refreshing cloud content (review-only)
+
+The deployed site is **review-only**: it reads from Turso and never writes. New
+questions are always authored and practised **locally** (they land in `local.db`).
+To make them appear online you push `local.db` into Turso:
+
+```bash
+pnpm db:sync
+```
+
+`scripts/db-sync.sh` does a **clean reload** — it dumps `local.db`, drops every
+table on Turso, and recreates them from the dump, so rows never collide on
+primary keys. It re-reads `local.db`, so you can run it as often as you like.
+Requires the `turso` CLI logged in (`turso auth login`); override the target
+with `TURSO_DB_NAME=<name> pnpm db:sync`.
+
+### Automating it (optional)
+
+`pnpm db:sync` is the one command you need; for a hands-off refresh schedule it
+with macOS `launchd` (only runs while the Mac is awake):
+
+```bash
+# ~/Library/LaunchAgents/com.toefl-tutor.dbsync.plist runs `pnpm db:sync`
+# nightly. See DEPLOY.md → "Refreshing content later" for the ready-made plist.
+launchctl load ~/Library/LaunchAgents/com.toefl-tutor.dbsync.plist
+```
 
 ## Environment variables
 
@@ -60,7 +87,7 @@ Local question files and `local.db` are gitignored.
 | `TURSO_DATABASE_URL` | cloud | Turso libSQL URL (set by the Vercel integration) |
 | `TURSO_AUTH_TOKEN` | cloud | Turso auth token (set by the Vercel integration) |
 | `GITHUB_ID` / `GITHUB_SECRET` | cloud | GitHub OAuth app credentials |
-| `ALLOWED_GITHUB_LOGIN` | cloud | the single allowed GitHub username |
+| `ALLOWED_GITHUB_LOGIN` | cloud | allowed GitHub username(s); comma-separate for several, e.g. `alice,bob` |
 | `AUTH_SECRET` | cloud | Auth.js v5 session secret |
 | `AUTH_URL` | cloud | optional on Vercel (auto-detected) |
 
