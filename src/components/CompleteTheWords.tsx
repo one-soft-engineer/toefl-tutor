@@ -74,9 +74,20 @@ export function CompleteTheWords({
         ? "border-ok text-ok"
         : "border-bad text-bad"
       : "border-muted text-fg";
+    // After grading, tint the whole word (shown prefix included) and wrap it in
+    // a soft colored pill so correct/wrong stands out clearly in both light and
+    // dark mode — colored text alone is too low-contrast on a dark surface.
+    const prefixColor = a ? (a.correct ? "text-ok" : "text-bad") : "text-fg";
+    const wrapTint = a
+      ? a.correct
+        ? "rounded-md bg-ok-soft px-1 py-0.5"
+        : "rounded-md bg-bad-soft px-1 py-0.5"
+      : "";
     return (
-      <span className="inline-flex items-baseline whitespace-nowrap align-baseline">
-        <span className="font-mono">{b.shown}</span>
+      <span
+        className={`inline-flex items-baseline whitespace-nowrap align-baseline ${wrapTint}`}
+      >
+        <span className={`font-mono ${prefixColor}`}>{b.shown}</span>
         <span className="relative mx-0.5 inline-block align-baseline">
           <span className="inline-flex gap-1" aria-hidden>
             {Array.from({ length: missing }).map((_, i) => {
