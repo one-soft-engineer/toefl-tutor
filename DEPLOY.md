@@ -87,7 +87,7 @@ Project → **Settings → Environment Variables** (scope: **Production**). Add:
 | `TURSO_AUTH_TOKEN`   | from step 1 |
 | `GITHUB_ID`          | OAuth Client ID from step 3 |
 | `GITHUB_SECRET`      | OAuth Client Secret from step 3 |
-| `ALLOWED_GITHUB_LOGIN` | `one-soft-engineer` |
+| `ALLOWED_GITHUB_LOGIN` | `one-soft-engineer` (comma-separate to allow more, e.g. `one-soft-engineer,chienchuanw`) |
 | `AUTH_SECRET`        | a random string — generate with `openssl rand -base64 32` |
 | `AUTH_URL`           | `APP_URL` (e.g. `https://toefl-tutor.vercel.app`) |
 

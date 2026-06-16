@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
-import { getAllowedGithubLogin } from "@/lib/env";
+import { isGithubLoginAllowed } from "@/lib/env";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -13,7 +13,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signIn({ profile }) {
       // GitHub profile.login is the username.
       const login = (profile as { login?: string } | undefined)?.login;
-      return login === getAllowedGithubLogin();
+      return isGithubLoginAllowed(login);
     },
   },
 });
