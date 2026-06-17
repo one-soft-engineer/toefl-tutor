@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  launchd job: author one new question daily and sync it to Turso.
+
+  Install (paths assume the repo at ~/Projects/toefl-tutor and volta-managed
+  node/pnpm — adjust if yours differ):
+
+    cp scripts/com.toefl-tutor.dailyquestion.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.toefl-tutor.dailyquestion.plist
+
+  Change the time via StartCalendarInterval (local machine time). Stop with:
+
+    launchctl unload ~/Library/LaunchAgents/com.toefl-tutor.dailyquestion.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.toefl-tutor.dailyquestion</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/chuan/Projects/toefl-tutor/scripts/daily-question.sh</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/chuan/Projects/toefl-tutor</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/Users/chuan/.volta/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <!-- Run every day at 08:00 local (Asia/Taipei) machine time. -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>8</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/chuan/Library/Logs/toefl-tutor-daily.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/chuan/Library/Logs/toefl-tutor-daily.log</string>
+</dict>
+</plist>

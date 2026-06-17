@@ -68,16 +68,29 @@ primary keys. It re-reads `local.db`, so you can run it as often as you like.
 Requires the `turso` CLI logged in (`turso auth login`); override the target
 with `TURSO_DB_NAME=<name> pnpm db:sync`.
 
-### Automating it (optional)
+### Daily auto-authored questions (optional)
 
-`pnpm db:sync` is the one command you need; for a hands-off refresh schedule it
-with macOS `launchd` (only runs while the Mac is awake):
+To grow the question bank hands-off, a scheduled job has headless Claude Code
+write one fresh question each day and push it live:
 
 ```bash
-# ~/Library/LaunchAgents/com.toefl-tutor.dbsync.plist runs `pnpm db:sync`
-# nightly. See DEPLOY.md → "Refreshing content later" for the ready-made plist.
-launchctl load ~/Library/LaunchAgents/com.toefl-tutor.dbsync.plist
+pnpm daily:question   # author 1 question -> local.db -> Turso, in one shot
 ```
+
+`scripts/daily-question.sh` invokes `claude -p` to author a non-duplicate
+question, registers it with `pnpm db:add` (which inserts a `questions` row
+without needing a practice attempt, and validates the schema + `{}`-per-blank
+invariant), then runs `pnpm db:sync`. If Claude produces nothing valid the run
+aborts before touching Turso. Schedule it daily with the ready-made launchd
+plist (only runs while the Mac is awake):
+
+```bash
+cp scripts/com.toefl-tutor.dailyquestion.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.toefl-tutor.dailyquestion.plist
+```
+
+See DEPLOY.md → "Daily auto-authored questions" for details and how to change
+the time or stop it.
 
 ## Environment variables
 

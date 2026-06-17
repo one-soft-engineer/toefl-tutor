@@ -125,42 +125,44 @@ database with `TURSO_DB_NAME=<name> pnpm db:sync`.
 > turso db destroy toefl-tutor && turso db create toefl-tutor --from-file ./local.db
 > ```
 
-### Scheduling it (optional, macOS)
+## Daily auto-authored questions (macOS)
 
-To refresh automatically instead of remembering to run it, schedule `pnpm db:sync` with
-`launchd`. Save this as `~/Library/LaunchAgents/com.toefl-tutor.dbsync.plist` (edit the
-paths to your pnpm and project, find pnpm with `which pnpm`):
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key>            <string>com.toefl-tutor.dbsync</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>/opt/homebrew/bin/pnpm</string>
-    <string>db:sync</string>
-  </array>
-  <key>WorkingDirectory</key> <string>/Users/chuan/Projects/toefl-tutor</string>
-  <key>StartCalendarInterval</key>           <!-- every night at 02:00 -->
-  <dict>
-    <key>Hour</key>    <integer>2</integer>
-    <key>Minute</key>  <integer>0</integer>
-  </dict>
-  <key>StandardOutPath</key>  <string>/tmp/toefl-dbsync.log</string>
-  <key>StandardErrorPath</key><string>/tmp/toefl-dbsync.err</string>
-</dict>
-</plist>
-```
-
-Then load it once:
+A scheduled job has headless Claude Code write one fresh question each day and push it
+live, so the cloud site gains a new question daily with no manual work:
 
 ```bash
-launchctl load ~/Library/LaunchAgents/com.toefl-tutor.dbsync.plist
+pnpm daily:question
 ```
 
-It only runs while the Mac is awake; a job missed while asleep runs at the next wake.
-Unload with `launchctl unload ...` to stop. (`launchd` is preferred over `cron` on
-modern macOS.)
+`scripts/daily-question.sh` runs the full chain:
+
+1. Invoke `claude -p` (retrying transient 529s) to author a new, non-duplicate
+   `questions/<date>-<topic>.json` matching the schema.
+2. `pnpm db:add` — register the newest file into `local.db` (validates schema **and**
+   the `{}`-per-blank invariant; aborts the whole run if Claude produced nothing valid,
+   so a bad day never reaches the cloud).
+3. `pnpm db:sync` — clean-reload `local.db` into Turso.
+
+It needs the `claude` and `turso` CLIs logged in. Logs go to
+`~/Library/Logs/toefl-tutor-daily.log`.
+
+### Schedule it with launchd
+
+A ready-made plist lives at `scripts/com.toefl-tutor.dailyquestion.plist` (runs daily at
+08:00 local). Install once:
+
+```bash
+cp scripts/com.toefl-tutor.dailyquestion.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.toefl-tutor.dailyquestion.plist
+launchctl list | grep toefl-tutor          # confirm it's registered
+```
+
+Change the time via `StartCalendarInterval` (local machine time). It only runs while the
+Mac is awake; a job missed while asleep runs at the next wake. Stop it with:
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.toefl-tutor.dailyquestion.plist
+```
+
+> Just want a manual cloud refresh (no authoring)? Run `pnpm db:sync` on its own — see
+> "Manual fallback" above. `launchd` is preferred over `cron` on modern macOS.

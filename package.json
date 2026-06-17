@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "db:push": "drizzle-kit push",
-    "db:sync": "bash scripts/db-sync.sh"
+    "db:add": "tsx scripts/db-add.ts",
+    "db:sync": "bash scripts/db-sync.sh",
+    "daily:question": "bash scripts/daily-question.sh"
   },
   "dependencies": {
     "@libsql/client": "^0.17.3",
