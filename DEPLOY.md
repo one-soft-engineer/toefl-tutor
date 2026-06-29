@@ -161,7 +161,7 @@ It needs the `claude` and `turso` CLIs logged in. Logs go to
 ### Schedule it with launchd
 
 A ready-made plist lives at `scripts/com.toefl-tutor.dailyquestion.plist` (runs daily at
-08:00 local). Install once:
+04:00 local, an off-peak slot). Install once:
 
 ```bash
 cp scripts/com.toefl-tutor.dailyquestion.plist ~/Library/LaunchAgents/

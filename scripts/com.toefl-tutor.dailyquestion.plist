@@ -32,11 +32,11 @@
     <string>/Users/chuan/.volta/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
   </dict>
 
-  <!-- Run every day at 08:00 local (Asia/Taipei) machine time. -->
+  <!-- Run every day at 04:00 local (Asia/Taipei) machine time — off-peak. -->
   <key>StartCalendarInterval</key>
   <dict>
     <key>Hour</key>
-    <integer>8</integer>
+    <integer>4</integer>
     <key>Minute</key>
     <integer>0</integer>
   </dict>
