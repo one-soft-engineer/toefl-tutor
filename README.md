@@ -74,8 +74,20 @@ pnpm db:sync
 `scripts/db-sync.sh` does a **clean reload** — it dumps `local.db`, drops every
 table on Turso, and recreates them from the dump, so rows never collide on
 primary keys. It re-reads `local.db`, so you can run it as often as you like.
-Requires the `turso` CLI logged in (`turso auth login`); override the target
-with `TURSO_DB_NAME=<name> pnpm db:sync`.
+
+Auth uses a **long-lived Turso DB token** (not the `turso` CLI login, whose
+session expires and would silently break unattended runs). Put the credentials
+in `.env.sync` (gitignored — kept separate from `.env.local` so `pnpm dev`
+still uses `file:local.db`):
+
+```bash
+# one-time: turso auth login, then
+echo "TURSO_DATABASE_URL=$(turso db show toefl-tutor --url)"  >> .env.sync
+echo "TURSO_AUTH_TOKEN=$(turso db tokens create toefl-tutor)" >> .env.sync
+```
+
+The sync fails loudly (non-zero exit) if the token is missing or the push
+errors, so the daily job won't silently no-op.
 
 ### Daily auto-authored questions (optional)
 
