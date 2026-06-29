@@ -2,8 +2,17 @@
 
 Single-user tool for practising the TOEFL iBT 2026 Reading "Complete the Words"
 task. Claude Code authors questions locally as JSON; you practise them in a
-TOEFL-style exam UI; graded attempts are stored in a database so you can review
-which words you've learned and which you got wrong.
+TOEFL-style exam UI against a countdown timer; graded attempts are stored in a
+database so you can review which words you've learned and drill the ones you
+missed as spaced-repetition (Leitner) flashcards.
+
+Highlights:
+
+- **Timed exam UI** — TOEFL-style shell with a countdown; the cloud review page
+  is a timed re-do (graded in the browser, never written back).
+- **Spaced-repetition flashcards** — missed words feed a Leitner box schedule.
+- **Daily auto-authored questions** — an optional scheduled job has headless
+  Claude Code write a fresh question each day and push it live.
 
 The same codebase runs two ways, with a single Drizzle (libSQL/SQLite) schema:
 
@@ -21,7 +30,7 @@ Claude Code → questions/*.json → practice (TOEFL-style exam UI) → grade lo
                         Drizzle + libSQL  (file:local.db | Turso)
                                         │
                                         ▼
-                    /review · /words · /wrong-words
+                    /review · /words · /flashcards
 ```
 
 ## Local authoring & practice
