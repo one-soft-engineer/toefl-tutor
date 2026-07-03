@@ -29,6 +29,10 @@ describe("parseFeedback", () => {
   it("throws on a malformed shape", () => {
     expect(() => parseFeedback('{"ok":"yes"}')).toThrow();
   });
+
+  it("throws on invalid JSON", () => {
+    expect(() => parseFeedback("not json")).toThrow();
+  });
 });
 
 describe("runEvaluation", () => {

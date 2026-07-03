@@ -14,6 +14,7 @@ export function ProductionCard({
   onGrade: (result: ReviewResult) => void;
   busy: boolean;
 }) {
+  const textareaId = "production-sentence";
   const [sentence, setSentence] = useState("");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
@@ -28,7 +29,7 @@ export function ProductionCard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ word: card.word, meaning: card.hint, sentence }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(`evaluate: HTTP ${res.status}`);
       setFeedback((await res.json()) as Feedback);
       setState("idle");
     } catch {
@@ -52,12 +53,14 @@ export function ProductionCard({
         <p className="text-sm text-muted">{card.hint ?? "Use this word in a sentence."}</p>
       </div>
 
-      <label className="mt-4 block text-xs uppercase tracking-wide text-muted">
+      <label htmlFor={textareaId} className="mt-4 block text-xs uppercase tracking-wide text-muted">
         Write a sentence using this word
       </label>
       <textarea
+        id={textareaId}
         className="mt-1 w-full rounded-lg border border-border bg-surface-2 p-3 text-fg outline-none focus:border-accent"
         rows={3}
+        maxLength={500}
         value={sentence}
         disabled={state === "loading"}
         onChange={(e) => setSentence(e.target.value)}

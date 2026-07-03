@@ -29,7 +29,12 @@ export function buildPrompt(input: EvaluateInput): string {
 }
 
 export function parseFeedback(raw: unknown): Feedback {
-  const value = typeof raw === "string" ? JSON.parse(raw) : raw;
+  let value: unknown;
+  try {
+    value = typeof raw === "string" ? JSON.parse(raw) : raw;
+  } catch {
+    throw new Error(`parseFeedback: invalid JSON from model — ${String(raw).slice(0, 80)}`);
+  }
   return feedbackSchema.parse(value);
 }
 

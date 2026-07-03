@@ -102,14 +102,16 @@ export function StudyClient({
         <div className="flex items-center gap-3">
           <div className="flex rounded-lg border border-border p-0.5">
             <button
+              type="button"
               className={`rounded-md px-2.5 py-1 text-xs ${mode === "recognition" ? "bg-accent text-accent-fg" : "text-muted"}`}
-              onClick={() => setMode("recognition")}
+              onClick={() => { setMode("recognition"); setFlipped(false); }}
             >
               Recognition
             </button>
             <button
+              type="button"
               className={`rounded-md px-2.5 py-1 text-xs ${mode === "production" ? "bg-accent text-accent-fg" : "text-muted"}`}
-              onClick={() => setMode("production")}
+              onClick={() => { setMode("production"); setFlipped(false); }}
             >
               Production
             </button>
