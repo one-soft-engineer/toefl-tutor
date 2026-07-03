@@ -5,8 +5,8 @@ import { useState } from "react";
 import type { ReviewResult } from "@/lib/leitner";
 
 // Speak a word aloud with the device's built-in en-US voice (Web Speech API).
-// No-ops where unsupported. Called from a click handler so iOS Safari, which
-// requires a user gesture for the first utterance, allows it.
+// No-ops where unsupported. Only ever called from the speaker button's click, so
+// iOS Safari — which requires a user gesture for the first utterance — allows it.
 function speak(word: string) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   const u = new SpeechSynthesisUtterance(word);
@@ -113,6 +113,31 @@ export function StudyClient({
             </span>
           )}
           <span className="ml-auto text-muted">box {current.box}</span>
+          {flipped && (
+            <button
+              type="button"
+              onClick={() => speak(current.word)}
+              aria-label={`Play pronunciation of ${current.word}`}
+              title="Play pronunciation"
+              className="-my-1 rounded-full p-1.5 text-muted transition-colors hover:bg-surface-2 hover:text-accent"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path d="M11 5 6 9H2v6h4l5 4z" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+              </svg>
+            </button>
+          )}
         </div>
 
         <div className="flex flex-1 flex-col items-center justify-center gap-4 py-6 text-center">
@@ -127,20 +152,9 @@ export function StudyClient({
             </>
           ) : (
             <>
-              <div className="flex items-center gap-2">
-                <p className="font-mono text-3xl font-bold text-accent">
-                  {current.word}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => speak(current.word)}
-                  aria-label={`Play pronunciation of ${current.word}`}
-                  title="Play pronunciation"
-                  className="rounded-full p-2 text-muted transition-colors hover:bg-surface-2 hover:text-accent"
-                >
-                  🔊
-                </button>
-              </div>
+              <p className="font-mono text-3xl font-bold text-accent">
+                {current.word}
+              </p>
               <p className="text-muted">{current.example}</p>
             </>
           )}
@@ -150,10 +164,7 @@ export function StudyClient({
       {!flipped ? (
         <button
           className="w-full rounded-lg bg-accent px-4 py-3 font-medium text-accent-fg transition-colors hover:bg-accent-hover"
-          onClick={() => {
-            setFlipped(true);
-            speak(current.word); // auto-play on reveal, within the user gesture
-          }}
+          onClick={() => setFlipped(true)}
         >
           Show answer
         </button>
