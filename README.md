@@ -11,6 +11,9 @@ Highlights:
 - **Timed exam UI** — TOEFL-style shell with a countdown; the cloud review page
   is a timed re-do (graded in the browser, never written back).
 - **Spaced-repetition flashcards** — missed words feed a Leitner box schedule.
+  A **Production** mode asks you to write a sentence with the target word and
+  gives compact AI feedback (Google Gemini free tier, `GEMINI_API_KEY`);
+  without a key it degrades to self-assessment against the example.
 - **Daily auto-authored questions** — an optional scheduled job has headless
   Claude Code write a fresh question each day and push it live.
 
