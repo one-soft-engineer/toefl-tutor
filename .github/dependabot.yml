@@ -1,0 +1,41 @@
+# Dependabot keeps dependencies current and patches known vulnerabilities.
+# Version updates are configured here; security-only updates (Dependabot alerts
+# + automated security fixes) are enabled in the repo settings and run even
+# outside this schedule.
+version: 2
+updates:
+  # App dependencies (pnpm lockfile is read via the "npm" ecosystem).
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+    # Batch low-risk updates into single PRs to cut review noise; majors stay
+    # separate so breaking changes are reviewed one at a time.
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Keep the GitHub Actions used by CI up to date.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      actions:
+        update-types:
+          - "minor"
+          - "patch"
