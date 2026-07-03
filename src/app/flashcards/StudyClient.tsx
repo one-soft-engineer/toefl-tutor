@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { ReviewResult } from "@/lib/leitner";
+import { ProductionCard } from "./ProductionCard";
 
 // Speak a word aloud with the device's built-in en-US voice (Web Speech API).
 // No-ops where unsupported. Only ever called from the speaker button's click, so
@@ -36,6 +37,7 @@ export function StudyClient({
   const [flipped, setFlipped] = useState(false);
   const [busy, setBusy] = useState(false);
   const [stats, setStats] = useState({ reviewed: 0, mastered: 0 });
+  const [mode, setMode] = useState<"recognition" | "production">("recognition");
 
   const current = queue[0];
 
@@ -97,94 +99,121 @@ export function StudyClient({
     <div className="space-y-4">
       <div className="flex items-center justify-between text-sm text-muted">
         <span>{queue.length} left</span>
-        <Link className="hover:text-fg" href={backHref}>
-          Exit
-        </Link>
-      </div>
-
-      <div className="flex min-h-[16rem] flex-col rounded-2xl border border-border bg-surface p-6 shadow-sm">
-        <div className="flex items-center gap-2 text-xs">
-          <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-muted">
-            {current.topic}
-          </span>
-          {current.isWrong && (
-            <span className="rounded-full bg-bad-soft px-2.5 py-0.5 text-bad">
-              wrong before
-            </span>
-          )}
-          <span className="ml-auto text-muted">box {current.box}</span>
-          {flipped && (
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-border p-0.5">
             <button
-              type="button"
-              onClick={() => speak(current.word)}
-              aria-label={`Play pronunciation of ${current.word}`}
-              title="Play pronunciation"
-              className="-my-1 rounded-full p-1.5 text-muted transition-colors hover:bg-surface-2 hover:text-accent"
+              className={`rounded-md px-2.5 py-1 text-xs ${mode === "recognition" ? "bg-accent text-accent-fg" : "text-muted"}`}
+              onClick={() => setMode("recognition")}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-5 w-5"
-                aria-hidden="true"
-              >
-                <path d="M11 5 6 9H2v6h4l5 4z" />
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-              </svg>
+              Recognition
             </button>
-          )}
-        </div>
-
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 py-6 text-center">
-          {!flipped ? (
-            <>
-              <p className="text-xs uppercase tracking-wide text-muted">
-                Meaning
-              </p>
-              <p className="text-xl text-fg">
-                {current.hint ?? `Recall the ${current.topic} word.`}
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="font-mono text-3xl font-bold text-accent">
-                {current.word}
-              </p>
-              <p className="text-muted">{current.example}</p>
-            </>
-          )}
+            <button
+              className={`rounded-md px-2.5 py-1 text-xs ${mode === "production" ? "bg-accent text-accent-fg" : "text-muted"}`}
+              onClick={() => setMode("production")}
+            >
+              Production
+            </button>
+          </div>
+          <Link className="hover:text-fg" href={backHref}>
+            Exit
+          </Link>
         </div>
       </div>
 
-      {!flipped ? (
-        <button
-          className="w-full rounded-lg bg-accent px-4 py-3 font-medium text-accent-fg transition-colors hover:bg-accent-hover"
-          onClick={() => setFlipped(true)}
-        >
-          Show answer
-        </button>
+      {mode === "production" ? (
+        <ProductionCard
+          key={current.word}
+          card={current}
+          onGrade={grade}
+          busy={busy}
+        />
       ) : (
-        <div className="flex gap-3">
-          <button
-            disabled={busy}
-            className="flex-1 rounded-lg border-2 border-bad/40 bg-bad-soft px-4 py-3 font-medium text-bad transition-colors hover:border-bad disabled:opacity-50"
-            onClick={() => grade("again")}
-          >
-            Again
-          </button>
-          <button
-            disabled={busy}
-            className="flex-1 rounded-lg border-2 border-ok/40 bg-ok-soft px-4 py-3 font-medium text-ok transition-colors hover:border-ok disabled:opacity-50"
-            onClick={() => grade("got")}
-          >
-            Got it
-          </button>
-        </div>
+        <>
+          <div className="flex min-h-[16rem] flex-col rounded-2xl border border-border bg-surface p-6 shadow-sm">
+            <div className="flex items-center gap-2 text-xs">
+              <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-muted">
+                {current.topic}
+              </span>
+              {current.isWrong && (
+                <span className="rounded-full bg-bad-soft px-2.5 py-0.5 text-bad">
+                  wrong before
+                </span>
+              )}
+              <span className="ml-auto text-muted">box {current.box}</span>
+              {flipped && (
+                <button
+                  type="button"
+                  onClick={() => speak(current.word)}
+                  aria-label={`Play pronunciation of ${current.word}`}
+                  title="Play pronunciation"
+                  className="-my-1 rounded-full p-1.5 text-muted transition-colors hover:bg-surface-2 hover:text-accent"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-5 w-5"
+                    aria-hidden="true"
+                  >
+                    <path d="M11 5 6 9H2v6h4l5 4z" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-1 flex-col items-center justify-center gap-4 py-6 text-center">
+              {!flipped ? (
+                <>
+                  <p className="text-xs uppercase tracking-wide text-muted">
+                    Meaning
+                  </p>
+                  <p className="text-xl text-fg">
+                    {current.hint ?? `Recall the ${current.topic} word.`}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-mono text-3xl font-bold text-accent">
+                    {current.word}
+                  </p>
+                  <p className="text-muted">{current.example}</p>
+                </>
+              )}
+            </div>
+          </div>
+
+          {!flipped ? (
+            <button
+              className="w-full rounded-lg bg-accent px-4 py-3 font-medium text-accent-fg transition-colors hover:bg-accent-hover"
+              onClick={() => setFlipped(true)}
+            >
+              Show answer
+            </button>
+          ) : (
+            <div className="flex gap-3">
+              <button
+                disabled={busy}
+                className="flex-1 rounded-lg border-2 border-bad/40 bg-bad-soft px-4 py-3 font-medium text-bad transition-colors hover:border-bad disabled:opacity-50"
+                onClick={() => grade("again")}
+              >
+                Again
+              </button>
+              <button
+                disabled={busy}
+                className="flex-1 rounded-lg border-2 border-ok/40 bg-ok-soft px-4 py-3 font-medium text-ok transition-colors hover:border-ok disabled:opacity-50"
+                onClick={() => grade("got")}
+              >
+                Got it
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
