@@ -4,6 +4,18 @@ import Link from "next/link";
 import { useState } from "react";
 import type { ReviewResult } from "@/lib/leitner";
 
+// Speak a word aloud with the device's built-in en-US voice (Web Speech API).
+// No-ops where unsupported. Called from a click handler so iOS Safari, which
+// requires a user gesture for the first utterance, allows it.
+function speak(word: string) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = "en-US";
+  u.rate = 0.9; // slightly slower for clarity on single words
+  window.speechSynthesis.cancel(); // stop any in-flight utterance first
+  window.speechSynthesis.speak(u);
+}
+
 export interface StudyCard {
   word: string;
   hint?: string;
@@ -115,9 +127,20 @@ export function StudyClient({
             </>
           ) : (
             <>
-              <p className="font-mono text-3xl font-bold text-accent">
-                {current.word}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="font-mono text-3xl font-bold text-accent">
+                  {current.word}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => speak(current.word)}
+                  aria-label={`Play pronunciation of ${current.word}`}
+                  title="Play pronunciation"
+                  className="rounded-full p-2 text-muted transition-colors hover:bg-surface-2 hover:text-accent"
+                >
+                  🔊
+                </button>
+              </div>
               <p className="text-muted">{current.example}</p>
             </>
           )}
@@ -127,7 +150,10 @@ export function StudyClient({
       {!flipped ? (
         <button
           className="w-full rounded-lg bg-accent px-4 py-3 font-medium text-accent-fg transition-colors hover:bg-accent-hover"
-          onClick={() => setFlipped(true)}
+          onClick={() => {
+            setFlipped(true);
+            speak(current.word); // auto-play on reveal, within the user gesture
+          }}
         >
           Show answer
         </button>
