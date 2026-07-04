@@ -59,7 +59,9 @@ export async function POST(req: Request) {
     ? 0
     : xpForQuestion({ correct: parsed.score, total });
 
-  if (!alreadyToday) {
+  // Only burn the day's slot when we actually award XP, so a 0-score submit
+  // (fat-finger or timed-out attempt) doesn't lock out a real try later today.
+  if (amount > 0) {
     await db
       .insert(questionProgress)
       .values({ questionId: parsed.questionId, lastXpDate: today })
