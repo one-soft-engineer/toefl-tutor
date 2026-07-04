@@ -4,19 +4,7 @@ import { getOrCreateStats } from "@/lib/stats-store";
 import { INITIAL_STATS } from "@/lib/streak";
 import { levelFromXp, DAILY_GOAL_XP } from "@/lib/xp";
 import { rankFromLevel } from "@/lib/rank";
-
-// Rank color tokens -> Tailwind badge classes (static strings so they survive
-// Tailwind's content scan).
-const RANK_BADGE: Record<string, string> = {
-  slate: "bg-slate-500 text-white",
-  green: "bg-green-600 text-white",
-  teal: "bg-teal-600 text-white",
-  blue: "bg-blue-600 text-white",
-  indigo: "bg-indigo-600 text-white",
-  violet: "bg-violet-600 text-white",
-  amber: "bg-amber-500 text-white",
-  gold: "bg-yellow-500 text-black",
-};
+import { rankBadgeClass } from "@/components/rank-style";
 
 // Server component: reads the single stats row and renders the persistent
 // rank / XP-progress / streak strip. The whole bar links to the character sheet.
@@ -45,7 +33,7 @@ export async function StatusBar() {
     >
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-1.5 text-xs sm:px-6">
         <span
-          className={`grid h-6 min-w-6 place-items-center rounded-md px-1.5 text-[11px] font-bold ${RANK_BADGE[rank.colorKey] ?? RANK_BADGE.slate}`}
+          className={`grid h-6 min-w-6 place-items-center rounded-md px-1.5 text-[11px] font-bold ${rankBadgeClass(rank.colorKey)}`}
           title={`${rank.title} · Level ${level}`}
         >
           Lv{level}
