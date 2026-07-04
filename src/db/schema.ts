@@ -45,3 +45,17 @@ export const cardProgress = sqliteTable("card_progress", {
     .$defaultFn(() => new Date()),
   lastReviewedAt: integer("last_reviewed_at", { mode: "timestamp" }),
 });
+
+// Single-row, global gamification state (XP, level, streak). Cloud-authoritative:
+// db:sync never overwrites it. `id` is a fixed sentinel so there is exactly one row.
+export const userStats = sqliteTable("user_stats", {
+  id: text("id").primaryKey().default("singleton"),
+  totalXp: integer("total_xp").notNull().default(0),
+  currentStreak: integer("current_streak").notNull().default(0),
+  longestStreak: integer("longest_streak").notNull().default(0),
+  lastActiveDate: text("last_active_date").notNull().default(""),
+  lastGoalDate: text("last_goal_date").notNull().default(""),
+  todayXp: integer("today_xp").notNull().default(0),
+  freezeCredits: integer("freeze_credits").notNull().default(0),
+  freezeWeek: text("freeze_week").notNull().default(""),
+});
