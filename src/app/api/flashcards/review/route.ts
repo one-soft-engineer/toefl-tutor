@@ -61,9 +61,17 @@ export async function POST(req: Request) {
   const alreadyToday =
     existing?.lastReviewedAt != null &&
     taipeiDate(existing.lastReviewedAt) === taipeiDate(now);
+  // First time this word is ever answered correctly (no prior progress row):
+  // grant the one-time acquisition bonus.
+  const firstAcquisition = !existing && parsed.result === "got";
   const amount = alreadyToday
     ? 0
-    : xpForReview({ mode: parsed.mode, result: parsed.result, box });
+    : xpForReview({
+        mode: parsed.mode,
+        result: parsed.result,
+        box,
+        firstAcquisition,
+      });
 
   const before = await getOrCreateStats(db);
   const { stats, leveledUp, goalReached } = applyXp(
