@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { ReviewResult } from "@/lib/leitner";
 import { ProductionCard } from "./ProductionCard";
 
@@ -38,6 +39,10 @@ export function StudyClient({
   const [busy, setBusy] = useState(false);
   const [stats, setStats] = useState({ reviewed: 0, mastered: 0 });
   const [mode, setMode] = useState<"recognition" | "production">("recognition");
+  const router = useRouter();
+  const [toast, setToast] = useState<{ amount: number; leveledUp: boolean } | null>(
+    null
+  );
 
   const current = queue[0];
 
@@ -49,10 +54,19 @@ export function StudyClient({
       const res = await fetch("/api/flashcards/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ word: current.word, result }),
+        body: JSON.stringify({ word: current.word, result, mode }),
       });
-      const data = (await res.json().catch(() => ({}))) as { mastered?: boolean };
+      const data = (await res.json().catch(() => ({}))) as {
+        mastered?: boolean;
+        xp?: { awarded: number; leveledUp: boolean };
+      };
       mastered = !!data.mastered;
+      if (data.xp && data.xp.awarded > 0) {
+        setToast({ amount: data.xp.awarded, leveledUp: data.xp.leveledUp });
+        // Server StatusBar reads the DB; re-fetch it so level/XP/streak update.
+        router.refresh();
+        setTimeout(() => setToast(null), 1400);
+      }
     } catch {
       // Network failure: still advance; progress just won't persist this time.
     }
@@ -97,6 +111,16 @@ export function StudyClient({
 
   return (
     <div className="space-y-4">
+      {toast && (
+        <div
+          className="pointer-events-none fixed left-1/2 top-20 z-30 -translate-x-1/2"
+          aria-live="polite"
+        >
+          <div className="animate-[fadeUp_1.4s_ease-out] rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-accent-fg shadow-lg">
+            +{toast.amount} XP{toast.leveledUp ? " · Level up! 🎉" : ""}
+          </div>
+        </div>
+      )}
       <div className="flex items-center justify-between text-sm text-muted">
         <span>{queue.length} left</span>
         <div className="flex items-center gap-3">
