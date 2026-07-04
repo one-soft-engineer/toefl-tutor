@@ -21,6 +21,9 @@ export async function getOrCreateStats(db: DB): Promise<Stats> {
       todayXp: row.todayXp,
       freezeCredits: row.freezeCredits,
       freezeWeek: row.freezeWeek,
+      newWordsToday: row.newWordsToday,
+      questionsToday: row.questionsToday,
+      questClaimedMask: row.questClaimedMask,
     };
   }
   await db.insert(userStats).values({ id: SINGLETON }).onConflictDoNothing();

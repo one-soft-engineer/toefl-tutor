@@ -66,4 +66,8 @@ export const userStats = sqliteTable("user_stats", {
   todayXp: integer("today_xp").notNull().default(0),
   freezeCredits: integer("freeze_credits").notNull().default(0),
   freezeWeek: text("freeze_week").notNull().default(""),
+  // Daily quest tracking (reset on the Taipei day rollover in applyXp/recordActivity).
+  newWordsToday: integer("new_words_today").notNull().default(0),
+  questionsToday: integer("questions_today").notNull().default(0),
+  questClaimedMask: integer("quest_claimed_mask").notNull().default(0),
 });
