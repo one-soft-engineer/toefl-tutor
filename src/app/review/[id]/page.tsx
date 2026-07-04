@@ -28,7 +28,7 @@ export default async function ReviewOne({
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
-      <ReviewClient question={question} />
+      <ReviewClient question={question} questionId={id} />
     </main>
   );
 }
