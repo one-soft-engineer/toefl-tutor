@@ -38,11 +38,19 @@ const client = createClient({ url, authToken });
 try {
   await client.executeMultiple(sql);
 
-  const tables = ["questions", "attempts", "wrong_words", "card_progress"];
+  // questions/attempts were just reloaded; the rest are cloud-authoritative and
+  // were intentionally left untouched — reported here so the operator can see them.
+  const tables = ["questions", "attempts", "wrong_words", "card_progress", "user_stats"];
   const counts = [];
   for (const t of tables) {
-    const r = await client.execute(`select count(*) as c from ${t}`);
-    counts.push(`${t} ${r.rows[0].c}`);
+    try {
+      const r = await client.execute(`select count(*) as c from ${t}`);
+      counts.push(`${t} ${r.rows[0].c}`);
+    } catch {
+      // A progress table may not exist yet on a fresh cloud DB (e.g. user_stats
+      // before db:push). Reporting is best-effort; the reload itself already ran.
+      counts.push(`${t} n/a`);
+    }
   }
   console.log("Turso row counts: " + counts.join(", "));
 } catch (e) {

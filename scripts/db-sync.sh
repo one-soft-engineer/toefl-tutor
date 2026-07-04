@@ -46,17 +46,20 @@ if [ -z "${TURSO_DATABASE_URL:-}" ] || [ -z "${TURSO_AUTH_TOKEN:-}" ]; then
   exit 1
 fi
 
-echo "Syncing $LOCAL_DB -> Turso (clean reload)..."
+echo "Syncing $LOCAL_DB -> Turso (content tables only)..."
 
-# Build one script: FK off, DROP every user table child-first (reverse creation
-# order, so foreign keys can't block the drop), then load the full dump.
+# CONTENT tables are author-side and safe to overwrite from local.db.
+# PROGRESS tables (card_progress, wrong_words, user_stats) are cloud-authoritative
+# — they accumulate from studying on the deployed site — so we NEVER drop or
+# reload them here. (This is the fix for the old clean-reload that silently wiped
+# cloud flashcard/XP progress on every daily sync.)
+#
+# Drop child-first so foreign keys don't block the drop; recreate parent-first.
 {
   echo "PRAGMA foreign_keys=OFF;"
-  sqlite3 "$LOCAL_DB" \
-    "select 'DROP TABLE IF EXISTS \"' || name || '\";' \
-     from sqlite_master where type='table' and name not like 'sqlite_%' \
-     order by rowid desc;"
-  sqlite3 "$LOCAL_DB" .dump
+  echo "DROP TABLE IF EXISTS \"attempts\";"
+  echo "DROP TABLE IF EXISTS \"questions\";"
+  sqlite3 "$LOCAL_DB" ".dump questions attempts"
 } | node scripts/db-sync.mjs
 
 echo "Done."
