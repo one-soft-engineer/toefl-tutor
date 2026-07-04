@@ -14,13 +14,15 @@ Highlights:
   A **Production** mode asks you to write a sentence with the target word and
   gives compact AI feedback (Google Gemini free tier, `GEMINI_API_KEY`);
   without a key it degrades to self-assessment against the example.
-- **Gamification (XP / levels / streak)** — reviewing flashcards earns
-  quality-bound XP (higher Leitner boxes and Production passes are worth more;
-  "Again" earns nothing; at most one award per word per day). A persistent
-  status bar shows your level, XP-to-next-level, and daily streak, with a "+X XP"
-  cue in the moment. Hitting the daily XP goal advances the streak; one missed
-  day per week is forgiven by a freeze credit. Progress is cloud-authoritative —
-  it lives in `user_stats` and is never overwritten by content sync.
+- **Gamification (XP / levels / streak)** — quality-bound XP from studying:
+  reviewing flashcards (Production passes and first-time-learned words are worth
+  more; "Again" earns nothing; one award per word per day) and completing a
+  question on `/review` (per correct blank + a full-marks bonus; one award per
+  question per day). A persistent status bar shows your level, XP-to-next-level,
+  and daily streak, with a "+X XP" cue in the moment. Hitting the daily XP goal
+  advances the streak; one missed day per week is forgiven by a freeze credit.
+  Progress is cloud-authoritative — it lives in `user_stats` / `question_progress`
+  and is never overwritten by content sync.
 - **Daily auto-authored questions** — an optional scheduled job has headless
   Claude Code write a fresh question each day and push it live.
 

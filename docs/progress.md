@@ -8,10 +8,26 @@ The app is a single-user TOEFL "Complete the Words" trainer: Claude Code authors
 questions locally into `local.db`, you practise them, and a review-only cloud
 site (Vercel + Turso) lets you re-do them and drill missed words as flashcards.
 
-Latest shipped feature: **Gamification / XP system (v1)** — PR #38, issue #37,
-live on `main` (production).
+Latest shipped: **Gamification XP balance v1.1** — PR #40, issue #39, live on
+`main` (production). Builds on the v1 system (PR #38, issue #37).
 
 ## Recently completed
+
+- **XP balance v1.1** (PR #40):
+  - Question completion on cloud `/review` now awards XP (`correct*3 + 10 full
+    marks`), capped once per question per Taipei-day via a cloud-authoritative
+    `question_progress` table. New `POST /api/questions/complete`, wired through
+    `CompleteTheWords` `onGraded` in `ReviewClient` (toast + status-bar refresh).
+    The daily slot is spent only when XP is actually awarded (a 0-score submit
+    doesn't lock out a later real attempt).
+  - Rebalanced `xpForReview`: recognition `5+box`, production `5+box+12`, plus a
+    one-time `+8` first-acquisition bonus, so a newly-learned word (15) beats
+    re-reviewing a mastered one (10).
+  - Daily goal stays 30 XP, now reliably reachable via question XP.
+  - Design docs: `docs/superpowers/{specs,plans}` (v1); this increment tracked
+    via issue #39 / PR #40.
+
+## Recently completed (v1)
 
 - **Gamification v1** (PR #38):
   - Quality-bound XP on flashcard review (box-scaled; Production > Recognition;
