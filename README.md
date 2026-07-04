@@ -74,9 +74,12 @@ To make them appear online you push `local.db` into Turso:
 pnpm db:sync
 ```
 
-`scripts/db-sync.sh` does a **clean reload** — it dumps `local.db`, drops every
-table on Turso, and recreates them from the dump, so rows never collide on
-primary keys. It re-reads `local.db`, so you can run it as often as you like.
+`scripts/db-sync.sh` reloads only the **content** tables (`questions`,
+`attempts`) — it drops and recreates just those from `local.db`. The
+**progress** tables (`card_progress`, `wrong_words`, `user_stats`) are
+**cloud-authoritative**: they accumulate as you study on the deployed site, so
+the sync never touches them. (Content flows local→cloud; progress lives only in
+the cloud.) You can run it as often as you like.
 
 Auth uses a **long-lived Turso DB token** (not the `turso` CLI login, whose
 session expires and would silently break unattended runs). Put the credentials
