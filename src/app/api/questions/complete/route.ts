@@ -3,8 +3,9 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db/client";
 import { questions, questionProgress } from "@/db/schema";
-import { xpForQuestion, levelFromXp } from "@/lib/xp";
-import { applyXp } from "@/lib/streak";
+import { xpForQuestion } from "@/lib/xp";
+import { recordActivity } from "@/lib/streak";
+import { buildXpResult } from "@/lib/xp-response";
 import { getOrCreateStats, saveStats } from "@/lib/stats-store";
 import {
   taipeiDate,
@@ -72,28 +73,18 @@ export async function POST(req: Request) {
   }
 
   const before = await getOrCreateStats(db);
-  const { stats, leveledUp, goalReached } = applyXp(
+  const { stats, leveledUp, goalReached, claimedQuests } = recordActivity(
     before,
-    amount,
+    { baseXp: amount, question: amount > 0 },
     today,
     taipeiYesterday(now),
     taipeiDayBeforeYesterday(now),
     taipeiWeekKey(now)
   );
   await saveStats(db, stats);
-  const info = levelFromXp(stats.totalXp);
 
   return NextResponse.json({
     ok: true,
-    xp: {
-      awarded: amount,
-      totalXp: stats.totalXp,
-      level: info.level,
-      xpIntoLevel: info.xpIntoLevel,
-      xpForNextLevel: info.xpForNextLevel,
-      currentStreak: stats.currentStreak,
-      leveledUp,
-      goalReached,
-    },
+    xp: buildXpResult(before, stats, { leveledUp, goalReached, claimedQuests }),
   });
 }
