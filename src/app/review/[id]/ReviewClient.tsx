@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CompleteTheWords } from "@/components/CompleteTheWords";
+import { XpToast, type XpToastData } from "@/components/XpToast";
 import type { Question } from "@/lib/types";
 import type { GradeResult } from "@/lib/grade";
 
@@ -14,9 +15,7 @@ export function ReviewClient({
   questionId: string;
 }) {
   const router = useRouter();
-  const [toast, setToast] = useState<{ amount: number; leveledUp: boolean } | null>(
-    null
-  );
+  const [toast, setToast] = useState<XpToastData | null>(null);
 
   // Timed re-do: same TOEFL exam shell + countdown as practice. Grading is done
   // in the browser; on completion we award XP (capped once per question per day)
@@ -29,12 +28,12 @@ export function ReviewClient({
         body: JSON.stringify({ questionId, score: result.score }),
       });
       const data = (await res.json().catch(() => ({}))) as {
-        xp?: { awarded: number; leveledUp: boolean };
+        xp?: XpToastData & { awarded: number };
       };
       if (data.xp && data.xp.awarded > 0) {
-        setToast({ amount: data.xp.awarded, leveledUp: data.xp.leveledUp });
+        setToast(data.xp);
         router.refresh();
-        setTimeout(() => setToast(null), 1600);
+        setTimeout(() => setToast(null), 1800);
       }
     } catch {
       // Network failure: the re-do still shows its score; XP just won't persist.
@@ -43,16 +42,7 @@ export function ReviewClient({
 
   return (
     <>
-      {toast && (
-        <div
-          className="pointer-events-none fixed left-1/2 top-20 z-30 -translate-x-1/2"
-          aria-live="polite"
-        >
-          <div className="animate-[fadeUp_1.6s_ease-out] rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-accent-fg shadow-lg">
-            +{toast.amount} XP{toast.leveledUp ? " · Level up! 🎉" : ""}
-          </div>
-        </div>
-      )}
+      {toast && <XpToast data={toast} />}
       <CompleteTheWords
         question={question}
         mode="answer"

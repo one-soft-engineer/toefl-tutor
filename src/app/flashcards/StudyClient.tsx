@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ReviewResult } from "@/lib/leitner";
 import { ProductionCard } from "./ProductionCard";
+import { XpToast, type XpToastData } from "@/components/XpToast";
 
 // Speak a word aloud with the device's built-in en-US voice (Web Speech API).
 // No-ops where unsupported. Only ever called from the speaker button's click, so
@@ -40,9 +41,7 @@ export function StudyClient({
   const [stats, setStats] = useState({ reviewed: 0, mastered: 0 });
   const [mode, setMode] = useState<"recognition" | "production">("recognition");
   const router = useRouter();
-  const [toast, setToast] = useState<{ amount: number; leveledUp: boolean } | null>(
-    null
-  );
+  const [toast, setToast] = useState<XpToastData | null>(null);
 
   const current = queue[0];
 
@@ -58,14 +57,14 @@ export function StudyClient({
       });
       const data = (await res.json().catch(() => ({}))) as {
         mastered?: boolean;
-        xp?: { awarded: number; leveledUp: boolean };
+        xp?: XpToastData & { awarded: number };
       };
       mastered = !!data.mastered;
       if (data.xp && data.xp.awarded > 0) {
-        setToast({ amount: data.xp.awarded, leveledUp: data.xp.leveledUp });
+        setToast(data.xp);
         // Server StatusBar reads the DB; re-fetch it so level/XP/streak update.
         router.refresh();
-        setTimeout(() => setToast(null), 1400);
+        setTimeout(() => setToast(null), 1800);
       }
     } catch {
       // Network failure: still advance; progress just won't persist this time.
@@ -111,16 +110,7 @@ export function StudyClient({
 
   return (
     <div className="space-y-4">
-      {toast && (
-        <div
-          className="pointer-events-none fixed left-1/2 top-20 z-30 -translate-x-1/2"
-          aria-live="polite"
-        >
-          <div className="animate-[fadeUp_1.4s_ease-out] rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-accent-fg shadow-lg">
-            +{toast.amount} XP{toast.leveledUp ? " · Level up! 🎉" : ""}
-          </div>
-        </div>
-      )}
+      {toast && <XpToast data={toast} />}
       <div className="flex items-center justify-between text-sm text-muted">
         <span>{queue.length} left</span>
         <div className="flex items-center gap-3">
