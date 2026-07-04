@@ -38,6 +38,7 @@ export function applyXp(
   amount: number,
   today: string,
   yesterday: string,
+  dayBeforeYesterday: string,
   weekKey: string
 ): ApplyXpResult {
   const s: Stats = { ...prev };
@@ -53,12 +54,16 @@ export function applyXp(
   let bridged = false;
   if (s.lastActiveDate !== today) {
     s.todayXp = 0;
-    const missedFullDay =
-      s.currentStreak > 0 && s.lastGoalDate !== "" && s.lastGoalDate < yesterday;
-    if (missedFullDay) {
-      if (s.freezeCredits > 0) {
+    // A gap exists when the last goal day is older than yesterday. A freeze can
+    // bridge EXACTLY ONE missed day (last goal == the day before yesterday);
+    // any longer absence resets, and multi-day gaps do not consume a freeze.
+    const hasGap =
+      s.currentStreak > 0 && s.lastGoalDate !== "" && s.lastGoalDate !== yesterday;
+    if (hasGap) {
+      const singleMissedDay = s.lastGoalDate === dayBeforeYesterday;
+      if (singleMissedDay && s.freezeCredits > 0) {
         s.freezeCredits -= 1;
-        bridged = true; // freeze keeps the streak alive across the gap
+        bridged = true; // freeze keeps the streak alive across the single gap
       } else {
         s.currentStreak = 0;
       }

@@ -7,7 +7,12 @@ import { reviewCard, isMastered, dueDateFrom } from "@/lib/leitner";
 import { xpForReview, levelFromXp } from "@/lib/xp";
 import { applyXp } from "@/lib/streak";
 import { getOrCreateStats, saveStats } from "@/lib/stats-store";
-import { taipeiDate, taipeiYesterday, taipeiWeekKey } from "@/lib/time";
+import {
+  taipeiDate,
+  taipeiYesterday,
+  taipeiDayBeforeYesterday,
+  taipeiWeekKey,
+} from "@/lib/time";
 
 const schema = z.object({
   word: z.string().min(1),
@@ -66,6 +71,7 @@ export async function POST(req: Request) {
     amount,
     taipeiDate(now),
     taipeiYesterday(now),
+    taipeiDayBeforeYesterday(now),
     taipeiWeekKey(now)
   );
   await saveStats(db, stats);

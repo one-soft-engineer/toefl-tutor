@@ -3,6 +3,7 @@ import {
   formatClock,
   taipeiDate,
   taipeiYesterday,
+  taipeiDayBeforeYesterday,
   taipeiWeekKey,
 } from "@/lib/time";
 
@@ -30,6 +31,12 @@ describe("taipeiDate", () => {
 describe("taipeiYesterday", () => {
   it("is the Taipei calendar date 24h earlier", () => {
     expect(taipeiYesterday(new Date("2026-07-05T04:00:00+08:00"))).toBe("2026-07-04");
+  });
+});
+
+describe("taipeiDayBeforeYesterday", () => {
+  it("is the Taipei calendar date 48h earlier", () => {
+    expect(taipeiDayBeforeYesterday(new Date("2026-07-05T04:00:00+08:00"))).toBe("2026-07-03");
   });
 });
 
