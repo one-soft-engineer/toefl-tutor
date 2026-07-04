@@ -46,6 +46,14 @@ export const cardProgress = sqliteTable("card_progress", {
   lastReviewedAt: integer("last_reviewed_at", { mode: "timestamp" }),
 });
 
+// Per-question daily XP cap for completing a question on /review. Cloud-
+// authoritative (not in db:sync's content reload set), so redoing a question is
+// capped to one XP award per Taipei-day. `lastXpDate` is a "YYYY-MM-DD" string.
+export const questionProgress = sqliteTable("question_progress", {
+  questionId: text("question_id").primaryKey(),
+  lastXpDate: text("last_xp_date").notNull().default(""),
+});
+
 // Single-row, global gamification state (XP, level, streak). Cloud-authoritative:
 // db:sync never overwrites it. `id` is a fixed sentinel so there is exactly one row.
 export const userStats = sqliteTable("user_stats", {
