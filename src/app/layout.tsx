@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TopNav, type NavLink } from "@/components/TopNav";
+import { StatusBar } from "@/components/StatusBar";
 import { isLocalMode } from "@/lib/env";
 
 const geistSans = Geist({
@@ -48,6 +49,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <TopNav links={links} />
+        <StatusBar />
         {children}
       </body>
     </html>
