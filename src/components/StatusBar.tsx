@@ -1,0 +1,63 @@
+import { getDb } from "@/db/client";
+import { getOrCreateStats } from "@/lib/stats-store";
+import { INITIAL_STATS } from "@/lib/streak";
+import { levelFromXp, DAILY_GOAL_XP } from "@/lib/xp";
+
+// Server component: reads the single stats row and renders the persistent
+// level / XP-progress / streak strip. Re-rendered on router.refresh() after a
+// review writes XP (see StudyClient).
+export async function StatusBar() {
+  // Degrade gracefully: if the DB is unreachable (e.g. during a static
+  // prerender of /_not-found at build time), show a neutral bar instead of
+  // failing the whole render/build.
+  let stats = INITIAL_STATS;
+  try {
+    stats = await getOrCreateStats(getDb());
+  } catch {
+    // keep INITIAL_STATS
+  }
+  const { level, xpIntoLevel, xpForNextLevel } = levelFromXp(stats.totalXp);
+  const pct = xpForNextLevel
+    ? Math.min(100, Math.round((xpIntoLevel / xpForNextLevel) * 100))
+    : 0;
+  const goalPct = Math.min(100, Math.round((stats.todayXp / DAILY_GOAL_XP) * 100));
+
+  return (
+    <div className="border-b border-border bg-surface/60">
+      <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-1.5 text-xs sm:px-6">
+        <span
+          className="grid h-6 min-w-6 place-items-center rounded-md bg-accent px-1.5 text-[11px] font-bold text-accent-fg"
+          title={`Level ${level}`}
+        >
+          Lv{level}
+        </span>
+
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <div
+            className="h-2 flex-1 overflow-hidden rounded-full bg-surface-2"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={xpForNextLevel}
+            aria-valuenow={xpIntoLevel}
+            aria-label="XP to next level"
+          >
+            <div
+              className="h-full rounded-full bg-accent transition-all"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <span className="shrink-0 tabular-nums text-muted">
+            {xpIntoLevel}/{xpForNextLevel} XP
+          </span>
+        </div>
+
+        <span
+          className="shrink-0 tabular-nums text-muted"
+          title={`Today ${stats.todayXp}/${DAILY_GOAL_XP} XP · goal ${goalPct}%`}
+        >
+          🔥 {stats.currentStreak}
+        </span>
+      </div>
+    </div>
+  );
+}
