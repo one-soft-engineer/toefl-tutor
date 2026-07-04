@@ -19,6 +19,10 @@ export function taipeiYesterday(d: Date): string {
   return taipeiDate(new Date(d.getTime() - DAY_MS));
 }
 
+export function taipeiDayBeforeYesterday(d: Date): string {
+  return taipeiDate(new Date(d.getTime() - 2 * DAY_MS));
+}
+
 // Opaque per-week key: which 7-day block the Taipei day falls in. Used only to
 // detect week rollover for the streak-freeze refill, so exact ISO-week
 // numbering does not matter — only stability within a week and ordering.
