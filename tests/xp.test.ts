@@ -3,6 +3,7 @@ import {
   cumulativeXpForLevel,
   levelFromXp,
   xpForReview,
+  xpForQuestion,
   DAILY_GOAL_XP,
 } from "@/lib/xp";
 
@@ -33,15 +34,49 @@ describe("xpForReview", () => {
     expect(xpForReview({ mode: "recognition", result: "again", box: 5 })).toBe(0);
     expect(xpForReview({ mode: "production", result: "again", box: 3 })).toBe(0);
   });
-  it("scales recognition XP by the resulting box", () => {
-    expect(xpForReview({ mode: "recognition", result: "got", box: 2 })).toBe(6);
-    expect(xpForReview({ mode: "recognition", result: "got", box: 5 })).toBe(15);
+  it("recognition is 5 + box (flatter, so easy re-reviews aren't over-rewarded)", () => {
+    expect(xpForReview({ mode: "recognition", result: "got", box: 2 })).toBe(7);
+    expect(xpForReview({ mode: "recognition", result: "got", box: 5 })).toBe(10);
   });
-  it("rewards production highest (box·3 + 15)", () => {
-    expect(xpForReview({ mode: "production", result: "got", box: 2 })).toBe(21);
-    expect(xpForReview({ mode: "production", result: "got", box: 5 })).toBe(30);
+  it("production adds a +12 premium over recognition", () => {
+    expect(xpForReview({ mode: "production", result: "got", box: 2 })).toBe(19);
+    expect(xpForReview({ mode: "production", result: "got", box: 5 })).toBe(22);
+  });
+  it("grants a +8 first-acquisition bonus, making a new word beat a mastered re-review", () => {
+    // New word conquered (recognition, first time): 7 + 8 = 15
+    expect(
+      xpForReview({ mode: "recognition", result: "got", box: 2, firstAcquisition: true })
+    ).toBe(15);
+    // Mastered old word re-reviewed: box 5 = 10. New (15) > old (10).
+    expect(xpForReview({ mode: "recognition", result: "got", box: 5 })).toBe(10);
+    // Production first acquisition: 19 + 8 = 27
+    expect(
+      xpForReview({ mode: "production", result: "got", box: 2, firstAcquisition: true })
+    ).toBe(27);
+    // No bonus on "again" even if flagged first acquisition.
+    expect(
+      xpForReview({ mode: "recognition", result: "again", box: 1, firstAcquisition: true })
+    ).toBe(0);
   });
   it("exposes the daily goal constant", () => {
     expect(DAILY_GOAL_XP).toBe(30);
+  });
+});
+
+describe("xpForQuestion", () => {
+  it("awards 3 per correct blank", () => {
+    expect(xpForQuestion({ correct: 3, total: 10 })).toBe(9);
+    expect(xpForQuestion({ correct: 0, total: 10 })).toBe(0);
+  });
+  it("adds a +10 bonus for full marks", () => {
+    expect(xpForQuestion({ correct: 10, total: 10 })).toBe(40);
+    expect(xpForQuestion({ correct: 5, total: 5 })).toBe(25);
+  });
+  it("clamps correct into [0, total] so a bad score can't inflate XP", () => {
+    expect(xpForQuestion({ correct: 99, total: 10 })).toBe(40); // treated as full marks
+    expect(xpForQuestion({ correct: -3, total: 10 })).toBe(0);
+  });
+  it("gives nothing for a zero-blank question", () => {
+    expect(xpForQuestion({ correct: 0, total: 0 })).toBe(0);
   });
 });
