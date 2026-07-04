@@ -35,11 +35,13 @@ export default function RootLayout({
         { href: "/", label: "Practice" },
         { href: "/words", label: "Words" },
         { href: "/flashcards", label: "Flashcards" },
+        { href: "/character", label: "Character" },
       ]
     : [
         { href: "/review", label: "Review" },
         { href: "/words", label: "Words" },
         { href: "/flashcards", label: "Flashcards" },
+        { href: "/character", label: "Character" },
       ];
 
   return (
