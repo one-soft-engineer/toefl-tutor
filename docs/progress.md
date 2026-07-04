@@ -8,10 +8,33 @@ The app is a single-user TOEFL "Complete the Words" trainer: Claude Code authors
 questions locally into `local.db`, you practise them, and a review-only cloud
 site (Vercel + Turso) lets you re-do them and drill missed words as flashcards.
 
-Latest shipped: **Gamification XP balance v1.1** — PR #40, issue #39, live on
-`main` (production). Builds on the v1 system (PR #38, issue #37).
+Latest shipped: **RPG elements v1** — PR #42, issue #41, live on `main`
+(production). Builds on the XP system (PR #38/#40).
 
 ## Recently completed
+
+- **RPG elements v1** (PR #42):
+  - `src/lib/rank.ts`: 8-tier scholar rank ladder, `rankFromLevel` (pure).
+  - `src/lib/quests.ts` + `recordActivity` (in `streak.ts`): 3 daily quests with
+    once-per-day bonus XP; `applyXp` refactored into shared `rollover` /
+    `evaluateGoal` helpers so quest bonuses are claimed BEFORE goal/streak eval.
+  - `user_stats` gained `newWordsToday` / `questionsToday` / `questClaimedMask`
+    (daily-reset; no new table). On Turso these were added via direct
+    `ALTER TABLE ... DEFAULT 0` (drizzle-kit push blocks non-interactively on
+    NOT-NULL column adds — see below).
+  - Rank-tinted status bar linking to a new `/character` sheet (hero header,
+    derived attributes, rank ladder, quests panel); shared `XpToast` flavored
+    with rank-ups and claimed quests.
+  - Design: `docs/superpowers/specs/2026-07-05-rpg-elements.md`.
+
+## Ops gotcha (Turso migrations)
+
+`pnpm db:push` against Turso **blocks on a TTY prompt** when adding NOT-NULL
+columns (it flags them as data-loss even with a default). For unattended column
+adds, run `ALTER TABLE <t> ADD COLUMN <c> <type> NOT NULL DEFAULT <v>` directly
+via `@libsql/client` instead.
+
+## Recently completed (earlier)
 
 - **XP balance v1.1** (PR #40):
   - Question completion on cloud `/review` now awards XP (`correct*3 + 10 full

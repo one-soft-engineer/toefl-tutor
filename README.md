@@ -23,6 +23,11 @@ Highlights:
   advances the streak; one missed day per week is forgiven by a freeze credit.
   Progress is cloud-authoritative — it lives in `user_stats` / `question_progress`
   and is never overwritten by content sync.
+- **RPG layer** — a scholar/language-adept reskin over the XP: 8 named **ranks**
+  (Novice Reader → Archmage of Lexicon) with a rank-tinted status badge, a
+  **`/character`** sheet (rank, attributes derived from real progress, rank
+  ladder, quests), and 3 **daily quests** (earn the daily goal / learn a new word
+  / complete a question) that grant bonus XP once per day.
 - **Daily auto-authored questions** — an optional scheduled job has headless
   Claude Code write a fresh question each day and push it live.
 
